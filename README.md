@@ -53,8 +53,7 @@ La app instalada usa los mismos datos que la página en ese navegador.
 - En 05 Ud. Hab. se pueden combinar estancias de alumnos distintos y barajar autores.
 - En 04 Matriz, **Exportar todo** guarda en un solo archivo tu trabajo y todas las carpetas de alumnos, con sus unidades habitacionales. Sirve como copia de seguridad y para pasar el conjunto a otro profesor, que lo carga con **Importar estancia**: las carpetas se añaden a las suyas.
 
-## Lo que cambia respecto a la versión dentro de Claude
+## Notas
 
-- **Contrastar con Claude** no está disponible en la versión web: el bloque avisa de que se use el proyecto de Claude del LAB. El resto de la herramienta funciona igual.
 - Las descargas usan la descarga normal del navegador.
 - Las tipografías (Schibsted Grotesk e IBM Plex Mono) se cargan de Google Fonts; sin conexión, el visor usa las del sistema.
