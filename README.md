@@ -51,6 +51,7 @@ La app instalada usa los mismos datos que la página en ese navegador.
 - Con ‹ › junto al nombre se pasa de un alumno a otro sin cambiar de estancia ni de pestaña.
 - 04 Matriz muestra estancias × alumnos (mínimos, máximos y comparativa), cada fila a la misma escala.
 - En 05 Ud. Hab. se pueden combinar estancias de alumnos distintos y barajar autores.
+- En 04 Matriz, **Exportar todo** guarda en un solo archivo tu trabajo y todas las carpetas de alumnos, con sus unidades habitacionales. Sirve como copia de seguridad y para pasar el conjunto a otro profesor, que lo carga con **Importar estancia**: las carpetas se añaden a las suyas.
 
 ## Lo que cambia respecto a la versión dentro de Claude
 
