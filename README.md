@@ -26,6 +26,20 @@ Es una sola página (`index.html`), sin servidor ni base de datos. Funciona en c
 
 Para actualizar el visor más adelante, basta con subir de nuevo `index.html` (sustituye al anterior). Los datos de los alumnos no se pierden, porque viven en su navegador, no en el repositorio.
 
+## Fases: pestañas abiertas para los alumnos
+
+Los alumnos empiezan solo con **01 Mínimos**; las pestañas 02 a 05 aparecen con un candado. Para abrir una fase:
+
+1. En GitHub, abre `index.html` y pulsa el lápiz (**Edit this file**).
+2. Busca la línea `const ABIERTAS = ["min"];` (está al principio del código, con una explicación encima).
+3. Añade las claves de las pestañas que quieras abrir y pulsa **Commit changes**:
+   - `"max"` 02 Máximos · `"cmp"` 03 Comparar · `"mx"` 04 Matriz · `"con"` 05 Ud. Hab.
+   - Ejemplo, fase de máximos: `const ABIERTAS = ["min","max","cmp"];`
+   - Ejemplo, fase final: `const ABIERTAS = ["min","max","cmp","con"];`
+4. En unos minutos los alumnos verán las pestañas abiertas al recargar la página. Su trabajo no se pierde.
+
+**Profesorado:** para ver todas las pestañas, abre una vez la dirección con `?profesorado` al final, por ejemplo `https://koldofg.github.io/BAI-Lab-Minimum-Maximum/?profesorado`. Ese navegador queda desbloqueado. Con `?alumnado` vuelve a verse como un alumno. (No es una contraseña: sirve para ordenar el curso, no para ocultar nada.)
+
 ## Instalarla como app
 
 Con el icono y el manifiesto, BAI Lab se puede instalar como una app:
