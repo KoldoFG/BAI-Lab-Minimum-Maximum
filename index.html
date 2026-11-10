@@ -957,7 +957,7 @@ function dibujarPlanta(svg){
     const sel = drag&&drag.id===f.id || selF===f.id;
     const gf=el("g",{"data-k":"f","data-id":f.id,style:"cursor:move"},g);
     const esInodoro=/inodoro/i.test(f.n), sc=out?A:(sel?A:I), sw=sel?2:1, sdash=out?"4 3":"";
-    if(esTabique(f)){ poche(g,x-.6,y-.6,w+1.2,h+1.2); /* solapa 0,6 px para que no quede una junta clara al tocar el muro */ /* en el grupo de los muros: con o sin relleno, se une a ellos sin junta */
+    if(esTabique(f)){ const mk=POCHE_G&&POCHE_G.mask; if(POCHE_G) POCHE_G.mask=null; poche(g,x-.6,y-.6,w+1.2,h+1.2); if(POCHE_G) POCHE_G.mask=mk; /* el tabique no se recorta */ /* solapa 0,6 px para que no quede una junta clara al tocar el muro */ /* en el grupo de los muros: con o sin relleno, se une a ellos sin junta */
       el("rect",{x,y,width:w,height:h,fill:"transparent",stroke:sel?A:"none","stroke-width":2},gf); }
     else if(esInodoro){ el("rect",{x,y,width:w,height:h,fill:"transparent"},gf); bloqueInodoro(gf,f,sp,x,y,w,h,{fill:P,stroke:sc,"stroke-width":sw,"stroke-dasharray":sdash}); }
     else if(alto){ el("rect",{x,y,width:w,height:h,fill:"transparent",stroke:sc,"stroke-width":sel?2:.9,"stroke-dasharray":"5 3"},gf);
@@ -1086,136 +1086,190 @@ function mezcla(c1,c2,t){ // mezcla dos colores hex (#rrggbb): t de c1 sobre c2
   const h=c=>{c=String(c).trim(); if(c[0]!=="#") return null; if(c.length===4) c="#"+[...c.slice(1)].map(x=>x+x).join(""); return [1,3,5].map(i=>parseInt(c.slice(i,i+2),16));};
   const a=h(c1), b=h(c2); if(!a||!b) return c2; return "rgb("+a.map((v,i)=>Math.round(v*t+b[i]*(1-t))).join(",")+")"; }
 function iso(x,y,z,c){return [(x-y)*c.cos*c.s+c.ox,(x+y)*c.sin*c.s-z*c.s+c.oy];}
-function dibujarAxo(svg,sp,W,H){
-  svg.innerHTML=""; if(!W||!H) return; const I=css("--ink"), P=css("--sheet"), A=css("--accent");
-  const cos=Math.cos(Math.PI/6), sin=Math.sin(Math.PI/6);
-  const ew=holgura(sp.w,6), ed=holgura(sp.d,6), eh=holgura(sp.h,4);
-  fijarEmp(sp); const ex={N:0,S:0,O:0,E:0}; sp.furn.filter(f=>f.on&&f.emp&&!esTabique(f)&&sp.conf==="Cerrado").forEach(f=>{const hz=f.emp==="N"||f.emp==="S"; ex[f.emp]=Math.max(ex[f.emp],(hz?f.d:f.w)+.1);});
-  // caja envolvente proyectada (estancia + nichos) para encuadrar
-  const caja0=(W_,D_,H_)=>{ let a=[1e9,-1e9,1e9,-1e9]; [-ex.O,W_+ex.E].forEach(x=>[-ex.N,D_+ex.S].forEach(y=>[0,H_].forEach(z=>{const px=(x-y)*cos, py=(x+y)*sin-z; a=[Math.min(a[0],px),Math.max(a[1],px),Math.min(a[2],py),Math.max(a[3],py)];}))); return a; };
-  const [bx0,bx1,by0,by1]=caja0(ew,ed,eh), bw=bx1-bx0, bh=by1-by0;
-  const fit=MINI?Math.min((W-12)/bw,(H-14)/bh):Math.min((W-50)/bw,(H-70)/bh,160);
-  const [rx0,rx1,ry0,ry1]=caja0(sp.w,sp.d,sp.h);
-  const E=pegajosa("axo",W,H,fit,s=>[(W-bw*s)/2-bx0*s,(H-bh*s)/2-by0*s+8],(s,ox,oy)=>ox+rx0*s>=8&&ox+rx1*s<=W-8&&oy+ry0*s>=28&&oy+ry1*s<=H-8);
-  const c={cos,sin,s:E.s,ox:E.ox,oy:E.oy};
-  const g=el("g",{},svg);
-  // capas en orden de dibujo: suelo · nichos y lo que queda dentro del muro · muros N y O (con la boca de los nichos abierta) · mobiliario
-  const gSuelo=el("g",{},g), gNicho=el("g",{},g), gMuro=el("g",{},g), gOculto=el("g",{},g), gF=el("g",{},g); let capa=gSuelo; // gOculto: lo tapado por los muros, en discontinua
-  const MUROS=[]; // muros N y O en pantalla: [contorno, huecos de los nichos]
-  const dentroPol=(p,pol)=>{ let c=false; for(let i=0,j=pol.length-1;i<pol.length;j=i++){ const [xi,yi]=pol[i],[xj,yj]=pol[j]; if(((yi>p[1])!==(yj>p[1]))&&(p[0]<(xj-xi)*(p[1]-yi)/(yj-yi)+xi)) c=!c; } return c; };
-  const tapado=p=>MUROS.some(([o,hs])=>dentroPol(p,o)&&!hs.some(h=>dentroPol(p,h)));
-  // aristas de lo que está detrás de un muro: los tramos que el muro tapa se repiten en discontinua por encima
-  const aristasOcultas=pts=>{ for(let i=0;i<pts.length;i++){ const a=pts[i], b=pts[(i+1)%pts.length], N=20; let ini=null;
-    for(let k=0;k<=N;k++){ const t0=k/N, t1=(k+1)/N, m=[a[0]+(b[0]-a[0])*(t0+t1)/2,a[1]+(b[1]-a[1])*(t0+t1)/2], oc=k<N&&tapado(m);
-      if(oc&&ini===null) ini=t0; if(!oc&&ini!==null){ el("line",{x1:a[0]+(b[0]-a[0])*ini,y1:a[1]+(b[1]-a[1])*ini,x2:a[0]+(b[0]-a[0])*t0,y2:a[1]+(b[1]-a[1])*t0,stroke:I,"stroke-width":.7,"stroke-dasharray":"3 2"},gOculto); ini=null; } } } };
-  const poly=(pts,attrs)=>{ const e=el("polygon",Object.assign({points:pts.map(p=>p.join(",")).join(" ")},attrs),capa); if(capa===gNicho&&attrs.stroke!=="none") nichoPolys.push(pts); return e; };
-  const nichoPolys=[];
-  const P0=(x,y,z)=>iso(x,y,z,c);
-  poly([P0(0,0,0),P0(sp.w,0,0),P0(sp.w,sp.d,0),P0(0,sp.d,0)],{fill:css("--accent-soft"),stroke:I,"stroke-width":.8});
-  fijarEmp(sp); const NI=nichos(sp);
-  if(sp.conf!=="Abierto"){
-    const pl=pts=>"M"+pts.map(p=>p.join(" ")).join(" L")+" Z";
-    const plano=(k,op)=>{ const N=k==="N", Q=(u,z)=>N?P0(u,0,z):P0(0,u,z), L=N?sp.w:sp.d;
-      const o=[Q(0,0),Q(L,0),Q(L,sp.h),Q(0,sp.h)], hs=NI.filter(n=>n.k===k).map(n=>[Q(n.u0,n.zb),Q(n.u1,n.zb),Q(n.u1,n.zt),Q(n.u0,n.zt)]); MUROS.push([o,hs]);
-      let d=pl(o); hs.forEach(h=>{ d+=" "+pl(h); });
-      el("path",{d,"fill-rule":"evenodd",fill:mezcla(I,P,op),stroke:I,"stroke-width":.8},gMuro); }; // muro opaco: tapa lo que hay detrás
-    plano("N",.06); plano("O",.12);
-  } else { [[0,0],[sp.w,0],[0,sp.d]].forEach(([x,y])=>{const a=P0(x,y,0),b=P0(x,y,sp.h); el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:I,"stroke-dasharray":"4 3","stroke-width":.7},g);}); }
-  capa=gNicho; NI.filter(n=>n.k==="N"||n.k==="O").forEach(n=>{ const N=n.k==="N", Q=(u,v,z)=>N?P0(u,-v,z):P0(-v,u,z);
-    poly([Q(n.u0,n.D,n.zb),Q(n.u1,n.D,n.zb),Q(n.u1,n.D,n.zt),Q(n.u0,n.D,n.zt)],{fill:css("--sheet"),stroke:I,"stroke-width":.8}); // fondo del nicho
-    poly([Q(n.u0,0,n.zb),Q(n.u0,n.D,n.zb),Q(n.u0,n.D,n.zt),Q(n.u0,0,n.zt)],{fill:I,"fill-opacity":.14,stroke:I,"stroke-width":.8}); // lateral visible
-    poly([Q(n.u0,0,n.zb),Q(n.u1,0,n.zb),Q(n.u1,n.D,n.zb),Q(n.u0,n.D,n.zb)],{fill:css("--faint"),stroke:I,"stroke-width":.8}); // base
-    // volumen del nicho: aristas que no son caras visibles (techo y lateral opuesto); por fuera del muro se ven, por detrás van en discontinua
-    poly([Q(n.u0,0,n.zt),Q(n.u1,0,n.zt),Q(n.u1,n.D,n.zt),Q(n.u0,n.D,n.zt)],{fill:"none",stroke:I,"stroke-width":.8});
-    poly([Q(n.u1,0,n.zb),Q(n.u1,n.D,n.zb),Q(n.u1,n.D,n.zt),Q(n.u1,0,n.zt)],{fill:"none",stroke:I,"stroke-width":.8});
-    capa=gMuro; poly([Q(n.u0,0,n.zb),Q(n.u1,0,n.zb),Q(n.u1,0,n.zt),Q(n.u0,0,n.zt)],{fill:"none",stroke:I,"stroke-width":1}); capa=gNicho; // boca del nicho en la cara del muro
+/* ======================= AXONOMETRÍA =======================
+   La escena se modela con prismas (muros con su espesor, suelo, tabiques y cada parte del mobiliario) y la visibilidad
+   de cada arista se calcula de forma exacta contra las caras que la tapan. Criterio de líneas, siempre el mismo:
+   · continua gruesa: aristas vistas de la obra (muros y tabiques), con los muros fundidos entre sí, sin juntas;
+   · continua fina: aristas vistas del suelo y del mobiliario, y sus dibujos (fuegos, pila, lavabo…);
+   · discontinua: mobiliario oculto por la obra (lo que queda detrás o dentro de un muro). Lo oculto por otros muebles no se dibuja;
+   · de puntos: lo virtual, lo que no existe como sólido: los muros E y S que se quitan para ver el interior y el hueco de uso.
+   La vista mira desde (+x, +y, +z): se ven la cara superior y las caras E y S de cada prisma. */
+const AXV={c:Math.cos(Math.PI/6)};
+const axoUV=(x,y,z)=>[(x-y)*AXV.c,(x+y)*.5-z];
+/* muros N y O de una estancia (coordenadas locales), con huecos y nichos vaciados, en prismas */
+function murosAxo(o,k){ const t=MURO, H=o.h, N=k==="N", L=N?o.w:o.d, uA=N?-t:0, uB=L;
+  const sol=[[uA,uB,0,t,0,H]], vac=[];
+  nichos(o).filter(n=>n.k===k).forEach(n=>{ sol.push([Math.max(uA,n.u0-t),Math.min(uB,n.u1+t),0,n.D+t,Math.max(0,n.zb-t),Math.min(H,n.zt+t)]); vac.push([n.u0,n.u1,-1,n.D,n.zb,n.zt]); });
+  (o.doors||[]).filter(d=>d.wall===k).forEach(d=>{ const [u0,u1]=tramoHueco(d,L), {z,h}=alturaHueco(d,H); vac.push([u0,u1,-1,t+1e-6,z,z+h]); });
+  const cortes=i=>[...new Set([...sol,...vac].flatMap(b=>[b[i],b[i+1]]))].sort((a,b)=>a-b);
+  const U=cortes(0).filter(v=>v>=uA-1e-9&&v<=uB+1e-9), V=cortes(2).filter(v=>v>=0), Z=cortes(4).filter(v=>v>=0&&v<=H+1e-9);
+  const dentro=(b,u,v,z)=>u>b[0]&&u<b[1]&&v>b[2]&&v<b[3]&&z>b[4]&&z<b[5];
+  const nu=U.length-1, nv=V.length-1, nz=Z.length-1, lleno=new Uint8Array(Math.max(0,nu*nv*nz)), id=(i,j,l)=>(i*nv+j)*nz+l;
+  for(let i=0;i<nu;i++) for(let j=0;j<nv;j++) for(let l=0;l<nz;l++){ const u=(U[i]+U[i+1])/2, v=(V[j]+V[j+1])/2, z=(Z[l]+Z[l+1])/2;
+    lleno[id(i,j,l)]=sol.some(b=>dentro(b,u,v,z))&&!vac.some(b=>dentro(b,u,v,z))?1:0; }
+  const out=[]; /* agrupación voraz de celdas en prismas grandes */
+  for(let i=0;i<nu;i++) for(let j=0;j<nv;j++) for(let l=0;l<nz;l++){ if(!lleno[id(i,j,l)]) continue;
+    let l1=l; while(l1+1<nz&&lleno[id(i,j,l1+1)]) l1++;
+    const col=(ii,jj)=>{ for(let q=l;q<=l1;q++) if(!lleno[id(ii,jj,q)]) return false; return true; };
+    let i1=i; while(i1+1<nu&&col(i1+1,j)) i1++;
+    const cara=jj=>{ for(let ii=i;ii<=i1;ii++) if(!col(ii,jj)) return false; return true; };
+    let j1=j; while(j1+1<nv&&cara(j1+1)) j1++;
+    for(let ii=i;ii<=i1;ii++) for(let jj=j;jj<=j1;jj++) for(let q=l;q<=l1;q++) lleno[id(ii,jj,q)]=0;
+    const u0=U[i],u1=U[i1+1],v0=V[j],v1=V[j1+1],z0=Z[l],z1=Z[l1+1];
+    out.push(N?[u0,-v1,z0,u1,-v0,z1]:[-v1,u0,z0,-v0,u1,z1]); }
+  return out; }
+/* escena de una estancia (diseño ya orientado), desplazada (dx,dy) */
+function escenaAxo(o,dx,dy,pref,E){
+  const I=css("--ink"), P=css("--sheet"), Fa=css("--faint");
+  const caja=(b,g,k,fill)=>{ if(b[3]-b[0]<1e-6||b[4]-b[1]<1e-6||b[5]-b[2]<1e-6) return; E.cajas.push({x0:b[0]+dx,y0:b[1]+dy,z0:b[2],x1:b[3]+dx,y1:b[4]+dy,z1:b[5],g,k,fill}); };
+  const seg=(a,b,g,w,extra)=>E.segs.push({a:[a[0]+dx,a[1]+dy,a[2]],b:[b[0]+dx,b[1]+dy,b[2]],g,w,extra});
+  const virt=(a,b)=>E.virt.push({a:[a[0]+dx,a[1]+dy,a[2]],b:[b[0]+dx,b[1]+dy,b[2]],sala:pref});
+  const anillo=(cx,cy,rx,ry,z,g,w)=>{ const n=28; for(let i=0;i<n;i++){ const t0=i/n*2*Math.PI, t1=(i+1)/n*2*Math.PI; seg([cx+rx*Math.cos(t0),cy+ry*Math.sin(t0),z],[cx+rx*Math.cos(t1),cy+ry*Math.sin(t1),z],g,w); } };
+  const rect=(x0,y0,x1,y1,z,g,w)=>{ const q=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]]; q.forEach((p,i)=>{ const r=q[(i+1)%4]; seg([p[0],p[1],z],[r[0],r[1],z],g,w); }); };
+  const W=o.w, D=o.d, H=o.h, obra="obra", fMuro={t:MUROS==="lleno"?I:P,x:mezcla(I,P,.12),y:mezcla(I,P,.06)};
+  fijarEmp(o); const NI=nichos(o);
+  caja([0,0,-.002,W,D,0],obra,"suelo",{t:css("--accent-soft"),x:P,y:P});
+  E.salas.push({x0:dx,y0:dy,x1:dx+W,y1:dy+D,h:H,cerr:o.conf==="Cerrado",pref});
+  if(o.conf==="Cerrado"){
+    ["N","O"].forEach(k=>murosAxo(o,k).forEach(b=>{ caja(b,obra,"muro",fMuro); E.muros.push(E.cajas[E.cajas.length-1]); }));
+    /* muros E y S, quitados para ver el interior: su arista superior y la esquina, de puntos */
+    virt([W,0,H],[W,D,H]); virt([0,D,H],[W,D,H]); virt([W,D,0],[W,D,H]);
+    NI.filter(n=>n.k==="E"||n.k==="S").forEach(n=>{ const Q=(u,v,z)=>n.k==="E"?[W+v,u,z]:[u,D+v,z];
+      [[n.u0,0],[n.u1,0],[n.u1,n.D],[n.u0,n.D]].forEach(([u,v],i,arr)=>{ const [u2,v2]=arr[(i+1)%4]; virt(Q(u,v,n.zb),Q(u2,v2,n.zb)); virt(Q(u,v,n.zt),Q(u2,v2,n.zt)); virt(Q(u,v,n.zb),Q(u,v,n.zt)); }); });
+  } else { [[0,0],[W,0],[W,D],[0,D]].forEach(([x,y],i,arr)=>{ const [x2,y2]=arr[(i+1)%4]; virt([x,y,0],[x,y,H]); virt([x,y,H],[x2,y2,H]); }); }
+  (o.doors||[]).filter(d=>d.tipo==="Ventana"&&(d.wall==="N"||d.wall==="O")&&o.conf==="Cerrado").forEach(d=>{ const N=d.wall==="N", [u0,u1]=tramoHueco(d,N?W:D), {z,h}=alturaHueco(d,H), um=(u0+u1)/2;
+    seg(N?[um,-MURO/2,z]:[-MURO/2,um,z],N?[um,-MURO/2,z+h]:[-MURO/2,um,z+h],obra+"·v",.5); }); /* montante de la ventana, en el plano medio del muro */
+  const mue={t:Fa,x:P,y:P};
+  o.furn.filter(f=>f.on).forEach(f=>{ const g=pref+f.id, x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d,z0=f.z||0,h=z0+Math.max(.02,f.h), C=(a,b,c,d,e,ff)=>caja([a,b,e,c,d,ff],g,"mueble",mue);
+    if(esTabique(f)){ caja([x,y,z0,X,Y,h],obra,"tabique",fMuro); return; }
+    if(/mesa/i.test(f.n)&&!/sobre/i.test(f.n)&&f.h>.06){ const e=.03,t=.03; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,h-e)); C(x,y,X,Y,h-e,h); return; }
+    if(esCamaAlta(f)){ C(x,y,X,Y,z0,h); seg([x,y,h],[X,Y,h],g,.6); return; }
+    if(esSofa(f)){ const t=.03, zb=z0+f.h-SOFA_E; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,zb)); C(x,y,X,Y,zb,h); barrasSofa(f).forEach(([,a,b,c,d])=>C(a,b,c,d,h,h+SOFA_R)); return; }
+    if(esEstanteria(f)){ partesEst(f,o,x,y,X,Y,z0,h).forEach(q=>C(...q)); return; }
+    if(/silla/i.test(f.n)&&f.h>.06){ const e=.03,t=.03,RB=.40, lado=ladoRespaldo(f,o), r={N:[x,y,X,y+t],S:[x,Y-t,X,Y],O:[x,y,x+t,Y],E:[X-t,y,X,Y]}[lado];
+      C(r[0],r[1],r[2],r[3],h,h+RB); [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,h-e)); C(x,y,X,Y,h-e,h); return; }
+    C(x,y,X,Y,z0,h);
+    if(/fuegos|placa/i.test(f.n)){ const r=Math.min(f.w,f.d)*.15; [[.3,.3],[.7,.3],[.3,.7],[.7,.7]].forEach(([u,v])=>anillo(x+f.w*u,y+f.d*v,r,r,h,g,.6)); }
+    if(/fregadero/i.test(f.n)){ const ejeY=!((f.rot||0)%2), F=.43, Cc=.06; const bw=ejeY?Math.max(.05,f.w-2*Cc):Math.min(F,f.w), bd=ejeY?Math.min(F,f.d):Math.max(.05,f.d-2*Cc);
+      const x0=x+(f.w-bw)/2, y0=y+(f.d-bd)/2; rect(x0,y0,x0+bw,y0+bd,h,g,.6); anillo(x+f.w/2,y+f.d/2,.025,.025,h,g,.6); }
+    if(/cama/i.test(f.n)) seg([x,y,h],[X,Y,h],g,.6);
+    if(/lavabo|lavamanos/i.test(f.n)){ anillo(x+f.w/2,y+f.d/2,f.w*.34,f.d*.3,h,g,.6); anillo(x+f.w/2,y+f.d/2,.02,.02,h,g,.6); }
+    if(/ducha/i.test(f.n)){ const dist={N:f.y,O:f.x,S:o.d-Y,E:o.w-X}; const m=["N","O","S","E"].reduce((a,b)=>dist[b]<dist[a]-1e-6?b:a);
+      const zH=Math.min(2.05,o.h-.1), L=.28, cx=(x+X)/2, cy=(y+Y)/2, [p0,p1]={N:[[cx,y],[cx,y+L]],S:[[cx,Y],[cx,Y-L]],O:[[x,cy],[x+L,cy]],E:[[X,cy],[X-L,cy]]}[m];
+      seg([p0[0],p0[1],zH],[p1[0],p1[1],zH],g,1.4,{"stroke-linecap":"round"}); anillo(p1[0],p1[1],.08,.08,zH-.03,g,.9); }
   });
-  // muros E y S: no se dibujan para ver el interior; su nicho se marca con la base y las aristas en discontinua
-  NI.filter(n=>n.k==="E"||n.k==="S").forEach(n=>{ const E_=n.k==="E", Q=(u,v,z)=>E_?P0(sp.w+v,u,z):P0(u,sp.d+v,z);
-    poly([Q(n.u0,0,n.zb),Q(n.u1,0,n.zb),Q(n.u1,n.D,n.zb),Q(n.u0,n.D,n.zb)],{fill:css("--faint"),stroke:I,"stroke-width":.8});
-    const ar=(a,b)=>el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:I,"stroke-width":.7,"stroke-dasharray":"3 2"},gNicho);
-    [[n.u0,0],[n.u1,0],[n.u1,n.D],[n.u0,n.D]].forEach(([u,v])=>ar(Q(u,v,n.zb),Q(u,v,n.zt)));
-    ar(Q(n.u0,0,n.zt),Q(n.u1,0,n.zt)); ar(Q(n.u1,0,n.zt),Q(n.u1,n.D,n.zt)); ar(Q(n.u1,n.D,n.zt),Q(n.u0,n.D,n.zt)); ar(Q(n.u0,n.D,n.zt),Q(n.u0,0,n.zt));
-  });
-  capa=gMuro;
-  if(sp.conf!=="Abierto") (sp.doors||[]).filter(d=>d.wall==="N"||d.wall==="O").forEach(d=>{ const N=d.wall==="N", [u0,u1]=tramoHueco(d,N?sp.w:sp.d), {z,h}=alturaHueco(d,sp.h);
-    const Q=(u,zz)=>N?P0(u,0,zz):P0(0,u,zz);
-    poly([Q(u0,z),Q(u1,z),Q(u1,z+h),Q(u0,z+h)],{fill:css("--sheet"),stroke:I,"stroke-width":.8,"stroke-dasharray":d.tipo==="Libre"?"4 3":""});
-    if(d.tipo==="Ventana"){ const m0=Q((u0+u1)/2,z), m1=Q((u0+u1)/2,z+h); el("line",{x1:m0[0],y1:m0[1],x2:m1[0],y2:m1[1],stroke:I,"stroke-width":.5},gMuro); }
-  });
-  const fs=sp.furn.filter(f=>f.on).slice().sort((a,b)=>(a.x+a.w+a.y+a.d)-(b.x+b.w+b.y+b.d)||(a.z||0)-(b.z||0));
-  const box=(x,y,X,Y,z0,h)=>{
-    poly([P0(X,y,z0),P0(X,Y,z0),P0(X,Y,h),P0(X,y,h)],{fill:P,stroke:I,"stroke-width":.7});
-    poly([P0(x,Y,z0),P0(X,Y,z0),P0(X,Y,h),P0(x,Y,h)],{fill:P,stroke:I,"stroke-width":.7});
-    poly([P0(x,y,h),P0(X,y,h),P0(X,Y,h),P0(x,Y,h)],{fill:css("--faint"),stroke:I,"stroke-width":.7}); };
-  const oculta=(x,y,X,Y,z0,h)=>{ const at={fill:"none",stroke:I,"stroke-width":.6,"stroke-dasharray":"3 2"}, q=(pts)=>el("polygon",Object.assign({points:pts.map(p=>p.join(",")).join(" ")},at),gOculto);
-    q([P0(X,y,z0),P0(X,Y,z0),P0(X,Y,h),P0(X,y,h)]); q([P0(x,Y,z0),P0(X,Y,z0),P0(X,Y,h),P0(x,Y,h)]); q([P0(x,y,h),P0(X,y,h),P0(X,Y,h),P0(x,Y,h)]); };
-  const NIde={}; NI.forEach(n=>NIde[n.f.id]=n);
-  let cf=null; capa=gF;
-  // pieza empotrada: la parte de la estancia se dibuja normal; la que entra en el muro, a la altura del nicho, se ve por su boca (N y O) o en el nicho (E y S);
-  // lo que queda dentro del muro por encima o por debajo del nicho está tapado y va en discontinua
-  const caja=(x,y,X,Y,z0,h)=>{
-    const n=cf&&NIde[cf.id]; if(!n){ box(x,y,X,Y,z0,h); return; }
-    let inW=null, inR=null;
-    if(n.k==="N"){ if(y<0) inW=[x,y,X,Math.min(Y,0)]; if(Y>0) inR=[x,Math.max(y,0),X,Y]; }
-    if(n.k==="S"){ if(Y>sp.d) inW=[x,Math.max(y,sp.d),X,Y]; if(y<sp.d) inR=[x,y,X,Math.min(Y,sp.d)]; }
-    if(n.k==="O"){ if(x<0) inW=[x,y,Math.min(X,0),Y]; if(X>0) inR=[Math.max(x,0),y,X,Y]; }
-    if(n.k==="E"){ if(X>sp.w) inW=[Math.max(x,sp.w),y,X,Y]; if(x<sp.w) inR=[x,y,Math.min(X,sp.w),Y]; }
-    if(inR){ capa=gF; box(...inR,z0,h); }
-    if(inW){ const a=Math.max(z0,n.zb), b=Math.min(h,n.zt);
-      if(b>a){ capa=(n.k==="N"||n.k==="O")?gNicho:gF; box(...inW,a,b); }
-      if(n.zb>z0) oculta(...inW,z0,Math.min(h,n.zb)); if(h>n.zt) oculta(...inW,Math.max(z0,n.zt),h); }
-    capa=gF; };
-  fs.forEach(f=>{ cf=f;const x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d,z0=f.z||0,h=z0+Math.max(.02,f.h);
-    if(/mesa/i.test(f.n)&&!/sobre/i.test(f.n)&&f.h>.06){ // mesa: sobre de 3 cm y cuatro patas de 3 × 3 cm en las esquinas
-      const e=.03, t=.03; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>caja(a,b,a+t,b+t,z0,h-e)); caja(x,y,X,Y,h-e,h); return; }
-    if(esCamaAlta(f)){ caja(x,y,X,Y,z0,h);
-      const q0=P0(x,y,h), q1=P0(X,Y,h); el("line",{x1:q0[0],y1:q0[1],x2:q1[0],y2:q1[1],stroke:I,"stroke-width":.6},gF); return; }
-    if(esSofa(f)){ const t=.03, zb=z0+f.h-SOFA_E, bars=barrasSofa(f);
-      [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>caja(a,b,a+t,b+t,z0,zb)); caja(x,y,X,Y,zb,h);
-      bars.filter(b=>b[0]==="N"||b[0]==="O").forEach(([,a,b,c,d])=>caja(a,b,c,d,h,h+SOFA_R));
-      bars.filter(b=>b[0]==="S"||b[0]==="E").forEach(([,a,b,c,d])=>caja(a,b,c,d,h,h+SOFA_R));
-      return; }
-    if(esEstanteria(f)){ partesEst(f,sp,x,y,X,Y,z0,h).forEach(q=>caja(...q)); return; }
-    if(/silla/i.test(f.n)&&f.h>.06){ // silla: asiento de 3 cm, cuatro patas de 3 × 3 cm y respaldo de 3 cm, 0,40 m sobre el asiento, en el lado opuesto a la mesa más cercana
-      const e=.03, t=.03, RB=.40, lado=ladoRespaldo(f,sp);
-      const respaldo={N:[x,y,X,y+t],S:[x,Y-t,X,Y],O:[x,y,x+t,Y],E:[X-t,y,X,Y]}[lado];
-      const r=()=>caja(respaldo[0],respaldo[1],respaldo[2],respaldo[3],h,h+RB);
-      if(lado==="N"||lado==="O") r();
-      [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>caja(a,b,a+t,b+t,z0,h-e)); caja(x,y,X,Y,h-e,h);
-      if(lado==="S"||lado==="E") r();
-      return; }
-    caja(x,y,X,Y,z0,h);
-    // cocina: fuegos y pila dibujados sobre la cara superior, con la misma geometría que en planta
-    const circ=(cx,cy,r)=>{const pts=[];for(let i=0;i<28;i++){const a=i/28*Math.PI*2;pts.push(P0(cx+r*Math.cos(a),cy+r*Math.sin(a),h));} el("polygon",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:I,"stroke-width":.6},gF);};
-    if(/fuegos|placa/i.test(f.n)){ const r=Math.min(f.w,f.d)*.15; [[.3,.3],[.7,.3],[.3,.7],[.7,.7]].forEach(([u,v])=>circ(x+f.w*u,y+f.d*v,r)); }
-    if(/fregadero/i.test(f.n)){ const ejeY=!((f.rot||0)%2), F=.43, C=.06; const bw=ejeY?Math.max(.05,f.w-2*C):Math.min(F,f.w), bd=ejeY?Math.min(F,f.d):Math.max(.05,f.d-2*C);
-      const x0=x+(f.w-bw)/2, y0=y+(f.d-bd)/2; poly([P0(x0,y0,h),P0(x0+bw,y0,h),P0(x0+bw,y0+bd,h),P0(x0,y0+bd,h)],{fill:"none",stroke:I,"stroke-width":.6}); circ(x+f.w/2,y+f.d/2,.025); }
-    if(/cama/i.test(f.n)){ const q0=P0(x,y,h), q1=P0(X,Y,h); el("line",{x1:q0[0],y1:q0[1],x2:q1[0],y2:q1[1],stroke:I,"stroke-width":.6},gF); } // cama: la diagonal de la planta sobre el colchón
-    // baño: lavabo con su seno elíptico; ducha con brazo y alcachofa saliendo del muro más próximo
-    if(/lavabo|lavamanos/i.test(f.n)){ const pts=[]; for(let i=0;i<32;i++){const t=i/32*Math.PI*2; pts.push(P0(x+f.w/2+f.w*.34*Math.cos(t),y+f.d/2+f.d*.3*Math.sin(t),h));} el("polygon",{points:pts.map(p=>p.join(",")).join(" "),fill:"none",stroke:I,"stroke-width":.6},gF); circ(x+f.w/2,y+f.d/2,.02); }
-    if(/ducha/i.test(f.n)){
-      const dist={N:f.y,O:f.x,S:sp.d-Y,E:sp.w-X}; const muroD=["N","O","S","E"].reduce((a,b)=>dist[b]<dist[a]-1e-6?b:a);
-      const zH=Math.min(2.05,sp.h-.1), L=.28, cx=(x+X)/2, cy=(y+Y)/2;
-      const [p0,p1]={N:[[cx,y],[cx,y+L]],S:[[cx,Y],[cx,Y-L]],O:[[x,cy],[x+L,cy]],E:[[X,cy],[X-L,cy]]}[muroD];
-      const a0=P0(p0[0],p0[1],zH), a1=P0(p1[0],p1[1],zH);
-      el("line",{x1:a0[0],y1:a0[1],x2:a1[0],y2:a1[1],stroke:I,"stroke-width":1.4,"stroke-linecap":"round"},gF); // brazo
-      const pts=[]; for(let i=0;i<28;i++){const t=i/28*Math.PI*2; pts.push(P0(p1[0]+.08*Math.cos(t),p1[1]+.08*Math.sin(t),zH-.03));}
-      el("polygon",{points:pts.map(p=>p.join(",")).join(" "),fill:P,stroke:I,"stroke-width":.9},gF); // alcachofa
-    }
-  });
-  nichoPolys.forEach(aristasOcultas);
-  // pieza abierta empotrada: el hueco de uso continúa sobre la parte de la pieza que queda en la estancia; se cierra con líneas a puntos
+  /* pieza abierta empotrada: el hueco de uso sobre ella, de puntos */
   NI.filter(n=>esAbierta(n.f)).forEach(n=>{ const f=n.f, x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d, top=(f.z||0)+f.h, zt=n.zt; if(zt<=top+.01) return;
-    const r={N:[x,Math.max(y,0),X,Y],S:[x,y,X,Math.min(Y,sp.d)],O:[Math.max(x,0),y,X,Y],E:[x,y,Math.min(X,sp.w),Y]}[n.k];
-    if(r[2]-r[0]<.01||r[3]-r[1]<.01) return;
-    const [x0,y0,x1,y1]=r, pts=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]], L=(a,b)=>el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:I,"stroke-width":.6,"stroke-dasharray":"1.5 2.5"},gF);
-    pts.forEach(([px,py],i)=>{ const [qx,qy]=pts[(i+1)%4]; L(P0(px,py,zt),P0(qx,qy,zt)); L(P0(px,py,top),P0(px,py,zt)); });
-  });
-  // techo: aristas superiores de los muros E y S, que no se dibujan
-  { const t1=P0(0,sp.d,sp.h), t2=P0(sp.w,sp.d,sp.h), t3=P0(sp.w,0,sp.h); el("polyline",{points:[t1,t2,t3].map(p=>p.join(",")).join(" "),fill:"none",stroke:I,"stroke-width":.6,"stroke-dasharray":"2 3"},g); }
-  // arista de altura
-  const a=P0(sp.w,sp.d,0), b=P0(sp.w,sp.d,sp.h); el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:I,"stroke-width":.5,"stroke-dasharray":"2 3"},g);
+    const r={N:[x,Math.max(y,0),X,Y],S:[x,y,X,Math.min(Y,o.d)],O:[Math.max(x,0),y,X,Y],E:[x,y,Math.min(X,o.w),Y]}[n.k]; if(r[2]-r[0]<.01||r[3]-r[1]<.01) return;
+    const q=[[r[0],r[1]],[r[2],r[1]],[r[2],r[3]],[r[0],r[3]]]; q.forEach(([a,b],i)=>{ const [c2,d2]=q[(i+1)%4]; virt([a,b,zt],[c2,d2,zt]); virt([a,b,top],[a,b,zt]); }); });
+}
+/* resta de un rectángulo en planta a un prisma: hasta cuatro prismas */
+function restarRect(b,r){ if(r.x1<=b.x0+1e-9||r.x0>=b.x1-1e-9||r.y1<=b.y0+1e-9||r.y0>=b.y1-1e-9) return [b];
+  const out=[], cp=o=>Object.assign({},b,o);
+  if(r.x0>b.x0) out.push(cp({x1:r.x0})); if(r.x1<b.x1) out.push(cp({x0:r.x1}));
+  const xa=Math.max(b.x0,r.x0), xb=Math.min(b.x1,r.x1);
+  if(r.y0>b.y0) out.push(cp({x0:xa,x1:xb,y1:r.y0})); if(r.y1<b.y1) out.push(cp({x0:xa,x1:xb,y0:r.y1}));
+  return out.filter(o=>o.x1-o.x0>1e-6&&o.y1-o.y0>1e-6); }
+/* dibuja la escena: rellenos por orden de profundidad y, encima, las aristas con su visibilidad exacta */
+function pintarAxo(g,E,s,ox,oy){
+  const I=css("--ink"), cos=AXV.c, eps=.5/s;
+  const P2=(p)=>{ const [u,v]=axoUV(p[0],p[1],p[2]); return [ox+u*s,oy+v*s]; };
+  const B=E.cajas;
+  /* caras visibles de cada prisma: superior, E (x=x1) y S (y=y1); profundidad hacia el observador: x+y+z */
+  const caras=[];
+  B.forEach((b,ib)=>{ const q=(pts,a,bb,c)=>{ const uv=pts.map(p=>axoUV(...p)); let mnu=1e9,mxu=-1e9,mnv=1e9,mxv=-1e9; uv.forEach(([u,v])=>{mnu=Math.min(mnu,u);mxu=Math.max(mxu,u);mnv=Math.min(mnv,v);mxv=Math.max(mxv,v);});
+      let ar=0; for(let i=0;i<4;i++){ const [x1,y1]=uv[i],[x2,y2]=uv[(i+1)%4]; ar+=x1*y2-x2*y1; } caras.push({uv,a,b:bb,c,k:b.k,ib,bb:[mnu,mxu,mnv,mxv],sg:ar>0?1:-1}); };
+    q([[b.x0,b.y0,b.z1],[b.x1,b.y0,b.z1],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],0,2,3*b.z1);
+    q([[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],-1.5/cos,-1,3*b.x1);
+    q([[b.x0,b.y1,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],1.5/cos,-1,3*b.y1); });
+  /* tramos de un segmento tapados: [t0,t1,tipo de lo que tapa] */
+  const tapados=(A,Bp)=>{ const a=axoUV(...A), b=axoUV(...Bp), da=A[0]+A[1]+A[2], db=Bp[0]+Bp[1]+Bp[2], du=b[0]-a[0], dv=b[1]-a[1];
+    const mnu=Math.min(a[0],b[0]), mxu=Math.max(a[0],b[0]), mnv=Math.min(a[1],b[1]), mxv=Math.max(a[1],b[1]), res=[];
+    for(const F of caras){ if(F.bb[1]<mnu-eps||F.bb[0]>mxu+eps||F.bb[3]<mnv-eps||F.bb[2]>mxv+eps) continue;
+      let t0=0,t1=1,ok=true;
+      for(let i=0;i<4&&ok;i++){ const p=F.uv[i], r=F.uv[(i+1)%4]; const nx=-(r[1]-p[1])*F.sg, ny=(r[0]-p[0])*F.sg, ln=Math.hypot(nx,ny)||1;
+        const f0=(nx*(a[0]-p[0])+ny*(a[1]-p[1]))/ln-eps, fd=(nx*du+ny*dv)/ln; /* dentro: f0+t·fd ≥ 0 */
+        if(Math.abs(fd)<1e-12){ if(f0<0) ok=false; } else { const t=-f0/fd; if(fd>0) t0=Math.max(t0,t); else t1=Math.min(t1,t); if(t0>=t1) ok=false; } }
+      if(!ok||t1-t0<1e-6) continue;
+      const dep=t=>{ const u=a[0]+du*t, v=a[1]+dv*t; return F.a*u+F.b*v+F.c-(da+(db-da)*t); }, e0=dep(t0), e1=dep(t1), tol=1e-4;
+      if(e0<=tol&&e1<=tol) continue;
+      let s0=t0,s1=t1; if(e0<=tol) s0=t0+(t1-t0)*(tol-e0)/(e1-e0); else if(e1<=tol) s1=t0+(t1-t0)*(e0-tol)/(e0-e1);
+      if(s1-s0>1e-6) res.push([s0,s1,F.k]); }
+    return res; };
+  /* rellenos: orden de atrás adelante entre prismas que se solapan en pantalla */
+  const n=B.length, prj=B.map(b=>{ let mnu=1e9,mxu=-1e9,mnv=1e9,mxv=-1e9; [b.x0,b.x1].forEach(x=>[b.y0,b.y1].forEach(y=>[b.z0,b.z1].forEach(z=>{ const [u,v]=axoUV(x,y,z); mnu=Math.min(mnu,u);mxu=Math.max(mxu,u);mnv=Math.min(mnv,v);mxv=Math.max(mxv,v); }))); return [mnu,mxu,mnv,mxv]; });
+  const detras=(A,Bx)=>A.x1<=Bx.x0+1e-9||A.y1<=Bx.y0+1e-9||A.z1<=Bx.z0+1e-9;
+  const antes=B.map(()=>[]); for(let i=0;i<n;i++) for(let j=0;j<n;j++){ if(i===j) continue; const p=prj[i],q=prj[j]; if(p[1]<=q[0]||q[1]<=p[0]||p[3]<=q[2]||q[3]<=p[2]) continue; if(detras(B[i],B[j])&&!detras(B[j],B[i])) antes[j].push(i); }
+  const orden=[], est=new Uint8Array(n); const vis=i=>{ if(est[i]) return; est[i]=1; antes[i].forEach(vis); orden.push(i); };
+  for(let i=0;i<n;i++) vis(i);
+  const gR=el("g",{},g), gL=el("g",{fill:"none","stroke-linecap":"butt"},g);
+  const dentroObra=b=>E.muros.some(m=>b.x0>=m.x0-1e-6&&b.x1<=m.x1+1e-6&&b.y0>=m.y0-1e-6&&b.y1<=m.y1+1e-6&&b.z0>=m.z0-1e-6&&b.z1<=m.z1+1e-6);
+  orden.forEach(i=>{ const b=B[i]; if(!b.fill||(b.k==="mueble"&&dentroObra(b))) return;
+    const pg=(pts,f)=>el("polygon",{points:pts.map(p=>P2(p).join(",")).join(" "),fill:f},gR);
+    pg([[b.x0,b.y0,b.z1],[b.x1,b.y0,b.z1],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],b.fill.t);
+    pg([[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],b.fill.x);
+    pg([[b.x0,b.y1,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],b.fill.y); });
+  /* aristas reales: en cada grupo (la obra entera, cada mueble) solo los pliegues del sólido, sin las juntas entre prismas */
+  const porGrupo={}; B.forEach(b=>(porGrupo[b.g]=porGrupo[b.g]||[]).push(b));
+  const ocupa=(L,p)=>L.some(b=>p[0]>b.x0&&p[0]<b.x1&&p[1]>b.y0&&p[1]<b.y1&&p[2]>b.z0&&p[2]<b.z1);
+  const peso={muro:1.1,tabique:1.1,suelo:.6,mueble:.7}, vistos=new Set(), trazos=[];
+  B.forEach(b=>{ const L=porGrupo[b.g], X=[b.x0,b.x1],Y=[b.y0,b.y1],Z=[b.z0,b.z1];
+    const aristas=[]; Y.forEach(y=>Z.forEach(z=>aristas.push([0,[b.x0,y,z],[b.x1,y,z]]))); X.forEach(x=>Z.forEach(z=>aristas.push([1,[x,b.y0,z],[x,b.y1,z]]))); X.forEach(x=>Y.forEach(y=>aristas.push([2,[x,y,b.z0],[x,y,b.z1]])));
+    aristas.forEach(([ax,A0,A1])=>{ const lo=A0[ax], hi=A1[ax], cs=[lo,hi]; L.forEach(o=>{ const m=[o.x0,o.y0,o.z0][ax], M=[o.x1,o.y1,o.z1][ax]; [m,M].forEach(v=>{ if(v>lo+1e-6&&v<hi-1e-6) cs.push(v); }); }); cs.sort((p,q)=>p-q);
+      const [o1,o2]=[[1,2],[0,2],[0,1]][ax], d=1e-4;
+      for(let i=0;i+1<cs.length;i++){ if(cs[i+1]-cs[i]<1e-6) continue; const m=A0.slice(); m[ax]=(cs[i]+cs[i+1])/2;
+        const q=(s1,s2)=>{ const p=m.slice(); p[o1]+=s1*d; p[o2]+=s2*d; return ocupa(L,p); }, a1=q(1,1),a2=q(1,-1),a3=q(-1,1),a4=q(-1,-1), c=a1+a2+a3+a4;
+        if(!(c===1||c===3||(c===2&&a1===a4))) continue;
+        const pa=A0.slice(), pb=A0.slice(); pa[ax]=cs[i]; pb[ax]=cs[i+1]; const key=b.g+"|"+[pa,pb].map(p=>p.map(v=>v.toFixed(4)).join(",")).join(";");
+        if(vistos.has(key)) continue; vistos.add(key); trazos.push({a:pa,b:pb,k:b.k,w:peso[b.k]||.7}); } }); });
+  E.segs.forEach(sg=>trazos.push({a:sg.a,b:sg.b,k:"deco",w:sg.w,extra:sg.extra}));
+  const linea=(p,q,w,extra,dash)=>{ const A=P2(p),Bq=P2(q); el("line",Object.assign({x1:A[0],y1:A[1],x2:Bq[0],y2:Bq[1],stroke:I,"stroke-width":w},dash?{"stroke-dasharray":dash}:{},extra||{}),gL); };
+  trazos.forEach(tz=>{ const tp=tapados(tz.a,tz.b); const cuts=[0,1]; tp.forEach(([s0,s1])=>cuts.push(s0,s1)); cuts.sort((p,q)=>p-q);
+    const at=t=>[tz.a[0]+(tz.b[0]-tz.a[0])*t,tz.a[1]+(tz.b[1]-tz.a[1])*t,tz.a[2]+(tz.b[2]-tz.a[2])*t];
+    const lpx=Math.hypot(...P2(tz.a).map((v,i)=>v-P2(tz.b)[i]));
+    let run=null; const cierra=()=>{ if(run&&(run.t1-run.t0)*lpx>1.2){ /* sin restos de menos de un píxel */ if(run.e==="v") linea(at(run.t0),at(run.t1),tz.w,tz.extra); else if(run.e==="o") linea(at(run.t0),at(run.t1),.6,null,"3 2"); } run=null; };
+    for(let i=0;i+1<cuts.length;i++){ const t0=cuts[i],t1=cuts[i+1]; if(t1-t0<1e-6) continue; const tm=(t0+t1)/2, cub=tp.filter(([s0,s1])=>tm>s0&&tm<s1);
+      const e=!cub.length?"v":(tz.k==="mueble"&&cub.every(c=>c[2]==="muro"||c[2]==="tabique"))?"o":"x";
+      if(run&&run.e===e) run.t1=t1; else { cierra(); run={e,t0,t1}; } }
+    cierra(); });
+  /* lo virtual, de puntos: sin cálculo de visibilidad */
+  E.virt.forEach(v=>linea(v.a,v.b,.6,{stroke:css("--mute")},"1.5 2.5"));
+}
+/* encuadre: caja proyectada de la escena */
+function limitesAxo(E){ let b=[1e9,-1e9,1e9,-1e9]; const ad=(x,y,z)=>{ const [u,v]=axoUV(x,y,z); b=[Math.min(b[0],u),Math.max(b[1],u),Math.min(b[2],v),Math.max(b[3],v)]; };
+  E.cajas.forEach(c=>[c.x0,c.x1].forEach(x=>[c.y0,c.y1].forEach(y=>[c.z0,c.z1].forEach(z=>ad(x,y,z))))); E.virt.forEach(v=>{ ad(...v.a); ad(...v.b); }); return b; }
+const nuevaEscena=()=>({cajas:[],segs:[],virt:[],muros:[],salas:[]});
+function dibujarAxo(svg,sp,W,H){
+  svg.innerHTML=""; if(!W||!H) return;
+  const E=nuevaEscena(); escenaAxo(sp,0,0,"",E);
+  const [bx0,bx1,by0,by1]=limitesAxo(E), bw=bx1-bx0||1, bh=by1-by0||1;
+  /* holgura del encuadre: la escala se mantiene mientras la estancia crece un poco */
+  const hw=holgura(sp.w,6)/Math.max(sp.w,.1), hd=holgura(sp.d,6)/Math.max(sp.d,.1), hh=holgura(sp.h,4)/Math.max(sp.h,.1), k=Math.max(hw,hd,hh);
+  const fit=MINI?Math.min((W-12)/bw,(H-14)/bh):Math.min((W-50)/(bw*k),(H-70)/(bh*k),160);
+  const Ev=pegajosa("axo",W,H,fit,s=>[(W-bw*s)/2-bx0*s,(H-bh*s)/2-by0*s+8],(s,ox,oy)=>ox+bx0*s>=8&&ox+bx1*s<=W-8&&oy+by0*s>=28&&oy+by1*s<=H-8);
+  pintarAxo(el("g",{},svg),E,Ev.s,Ev.ox,Ev.oy);
+}
+/* Ud. Hab.: todas las estancias en una sola escena; los muros de cada estancia cerrada que caen dentro de otra se recortan, como en planta */
+function dibujarAxoUnidad(g,W,H){
+  const ps=unidad().p.map(p=>({p,c:cajaP(p)})).filter(o=>o.c); if(!ps.length) return;
+  const E=nuevaEscena();
+  ps.forEach(({p,c})=>{ const o=girarDiseno(c.sp,p.r), m0=E.muros.length; escenaAxo(o,c.x,c.y,p.k+":",E); E.muros.slice(m0).forEach(m=>m.sala=p.k); });
+  const cerr=ps.filter(({c})=>c.sp.conf==="Cerrado").map(({p,c})=>({k:p.k,x0:c.x,y0:c.y,x1:c.x+c.w,y1:c.y+c.h}));
+  let nuevas=[], muros=[];
+  const suelos=[];
+  E.cajas.forEach(b=>{ if(b.k==="suelo"){ let pz=[b]; suelos.forEach(r=>{ pz=pz.flatMap(q=>restarRect(q,r)); }); suelos.push({x0:b.x0,y0:b.y0,x1:b.x1,y1:b.y1}); nuevas.push(...pz); return; } /* suelos sin solaparse: un solo tono */
+    if(b.k!=="muro"){ nuevas.push(b); return; }
+    let piezas=[b]; cerr.filter(r=>r.k!==b.sala).forEach(r=>{ piezas=piezas.flatMap(q=>restarRect(q,r)); }); nuevas.push(...piezas); muros.push(...piezas); });
+  E.cajas=nuevas; E.muros=muros;
+  /* lo virtual de una estancia que cae dentro de otra estancia o sobre un muro conservado, se quita */
+  const tapa=(x,y)=>cerr.some(r=>x>r.x0+1e-3&&x<r.x1-1e-3&&y>r.y0+1e-3&&y<r.y1-1e-3)||muros.some(m=>x>m.x0-1e-3&&x<m.x1+1e-3&&y>m.y0-1e-3&&y<m.y1+1e-3);
+  const virt=[]; E.virt.forEach(v=>{ const N=Math.max(1,Math.ceil(Math.hypot(v.b[0]-v.a[0],v.b[1]-v.a[1])/.05)); let ini=null;
+    const at=t=>[v.a[0]+(v.b[0]-v.a[0])*t,v.a[1]+(v.b[1]-v.a[1])*t,v.a[2]+(v.b[2]-v.a[2])*t];
+    for(let i=0;i<=N;i++){ const t=i/N, m=at(Math.min((i+.5)/N,1)), dentroOtra=i<N&&tapa(m[0],m[1]);
+      if(i<N&&!dentroOtra){ if(ini===null) ini=t; } else if(ini!==null){ virt.push({a:at(ini),b:at(t)}); ini=null; } } });
+  E.virt=virt;
+  const [b0,b1,b2,b3]=limitesAxo(E), bw=b1-b0||1, bh=b3-b2||1, s=Math.min(W*.25/bw,H*.25/bh,70) /* como mucho, 1/4 del ancho y 1/4 del alto del lienzo */;
+  pintarAxo(g,E,s,W-24-b1*s,H-50-b3*s);
 }
 function dibujarSecAxo(){
   const sv=$("#svSec"), sa=$("#svAxo"); if(!sv) return; const sp=cur();
@@ -1461,15 +1515,6 @@ function girar1(o){ const d=o.d, w=o.w;
   if(o.giro){ const gx=d-o.giro.y; o.giro.y=o.giro.x; o.giro.x=gx; }
   o.w=d; o.d=w; return o; }
 function girarDiseno(sp,r){ let o=JSON.parse(JSON.stringify(sp)); for(let i=0;i<((r||0)%4);i++) o=girar1(o); return o; }
-function dibujarAxoUnidad(g,W,H){
-  const ps=unidad().p.map(p=>({p,c:cajaP(p)})).filter(o=>o.c); if(!ps.length) return;
-  const cos=Math.cos(Math.PI/6), sin=Math.sin(Math.PI/6); let b=[1e9,-1e9,1e9,-1e9];
-  ps.forEach(({c})=>[c.x-MURO,c.x+c.w+MURO].forEach(x=>[c.y-MURO,c.y+c.h+MURO].forEach(y=>[0,c.sp.h].forEach(z=>{ const px=(x-y)*cos, py=(x+y)*sin-z; b=[Math.min(b[0],px),Math.max(b[1],px),Math.min(b[2],py),Math.max(b[3],py)]; }))));
-  const bw=b[1]-b[0], bh=b[3]-b[2], s=Math.min(W*.25/bw,H*.25/bh,70) /* como mucho, 1/4 del ancho y 1/4 del alto del lienzo */, OX=W-24-b[1]*s, OY=H-50-b[3]*s;
-  ps.sort((a,z)=>(a.c.x+a.c.w/2+a.c.y+a.c.h/2)-(z.c.x+z.c.w/2+z.c.y+z.c.h/2)).forEach(({p,c})=>{
-    const o=girarDiseno(c.sp,p.r), gi=el("g",{},g);
-    FIJA={s,ox:OX+(c.x-c.y)*cos*s,oy:OY+(c.x+c.y)*sin*s}; try{ dibujarAxo(gi,o,1,1); }catch(e){ console.warn(e); } finally{ FIJA=null; } });
-}
 function girarP(p){ const c=cajaP(p); if(!c) return; const cx=p.x+c.w/2, cy=p.y+c.h/2; p.r=((p.r||0)+1)%4; const c2=cajaP(p); p.x=snap(cx-c2.w/2); p.y=snap(cy-c2.h/2); }
 function quitarP(p){ const U=unidad(); U.p=U.p.filter(q=>q!==p); if(selP===p.k) selP=null; panelConectar(); }
 /* imán: una estancia se pega a otra dejando entre ambas un único muro de 10 cm, o alinea sus caras */
