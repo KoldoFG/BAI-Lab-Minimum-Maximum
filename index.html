@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Visor BAI · Espacios mínimos y máximos</title>
+<title>App BAI · Espacios mínimos y máximos</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -813,11 +813,13 @@ function escalaGrafica(g,x,y,s,maxW){ if(MINI||FIJA) return;
    debajo, los rectángulos con un trazo grueso; encima, los mismos rectángulos en blanco. Queda solo el contorno del conjunto, sin las juntas entre tramos. */
 let MUROS="hueco"; try{ MUROS=localStorage.getItem("bai-visor-muros")==="lleno"?"lleno":"hueco"; }catch(e){} /* por defecto, sin relleno */
 const CAPAS=new WeakMap();
+let POCHE_G=null; /* Ud. Hab.: los muros de todas las estancias en unas mismas capas, cada uno recortado por las estancias que pisa */
 function poche(g,x,y,w,h){ if(!(w>0&&h>0)) return;
-  if(MUROS!=="hueco"){ el("rect",{x,y,width:w,height:h,fill:css("--ink")},g); return; }
-  let L=CAPAS.get(g); if(!L){ L={a:el("g",{},g),b:el("g",{},g)}; CAPAS.set(g,L); }
-  el("rect",{x,y,width:w,height:h,fill:"none",stroke:css("--ink"),"stroke-width":3.2,"stroke-linejoin":"miter"},L.a); /* se ve la mitad exterior del trazo: 1,6 px */
-  el("rect",{x,y,width:w,height:h,fill:css("--sheet")},L.b); }
+  const G=POCHE_G, mk=G&&G.mask?{mask:G.mask}:{};
+  if(MUROS!=="hueco"){ el("rect",{x,y,width:w,height:h,fill:css("--ink"),...mk},G?G.a:g); return; }
+  let L=G||CAPAS.get(g); if(!L){ L={a:el("g",{},g),b:el("g",{},g)}; CAPAS.set(g,L); }
+  el("rect",{x,y,width:w,height:h,fill:"none",stroke:css("--ink"),"stroke-width":3.2,"stroke-linejoin":"miter",...mk},L.a); /* se ve la mitad exterior del trazo: 1,6 px */
+  el("rect",{x,y,width:w,height:h,fill:css("--sheet"),...mk},L.b); }
 
 function muro(g,ox,oy,s,sp,W,D,conf,doorOn,gH){
   gH=gH||g;
@@ -1421,10 +1423,19 @@ function dibujarConectar(){
   dibujarAxoUnidad(el("g",{"pointer-events":"none"},svg),W,H); /* axonometría flotante, abajo a la derecha, sin recuadro */
   const g=el("g",{},svg);
   const orden=unidad().p.filter(p=>p.k!==selP).concat(unidad().p.filter(p=>p.k===selP)); /* la señalada, encima */
+  /* cuando dos estancias cerradas se pisan, los muros de cada una que caen dentro de la otra se recortan: queda un solo espacio con el contorno de ambas */
+  const cerr=orden.map(p=>({p,c:cajaP(p)})).filter(o=>o.c&&o.c.sp.conf==="Cerrado");
+  const defs=el("defs",{},svg), gw=el("g",{"pointer-events":"none"},g);
+  const capas={a:el("g",{},gw),b:el("g",{},gw),mask:null};
   orden.forEach(p=>{ const c=cajaP(p); if(!c) return; const sp=c.sp;
     const gp=el("g",{"data-pz":p.k,style:"cursor:move"},g);
-    const gi=el("g",{transform:`translate(${ox+(c.x+c.w/2)*s} ${oy+(c.y+c.h/2)*s}) rotate(${(p.r||0)*90}) translate(${-sp.w/2*s} ${-sp.d/2*s})`},gp);
-    FIJA={s,ox:0,oy:0}; try{ conEstado(fuenteP(p),p.id,p.v==="max"?"max":"min",()=>dibujarPlanta(gi)); } finally{ FIJA=null; }
+    const gi=el("g",{},gp);
+    const otras=sp.conf==="Cerrado"?cerr.filter(o=>o.p!==p):[]; capas.mask=null;
+    if(otras.length){ const id="mk_"+p.k; const m=el("mask",{id,maskUnits:"userSpaceOnUse",x:0,y:0,width:W,height:H},defs);
+      el("rect",{x:0,y:0,width:W,height:H,fill:"#fff"},m); otras.forEach(o=>el("rect",{x:ox+o.c.x*s,y:oy+o.c.y*s,width:o.c.w*s,height:o.c.h*s,fill:"#000"},m)); capas.mask=`url(#${id})`; }
+    /* se dibuja una copia ya girada, sin transformaciones, para que muros y recortes compartan coordenadas */
+    const o=girarDiseno(sp,p.r), T2={spaces:{[p.id]:o},order:S.order,sel:p.id,mode:"min",log:[]};
+    FIJA={s,ox:ox+c.x*s,oy:oy+c.y*s}; POCHE_G=capas; try{ conEstado(T2,p.id,"min",()=>dibujarPlanta(gi)); } finally{ FIJA=null; POCHE_G=null; }
     gi.onpointerdown=null; gi.ondblclick=null; gi.style.pointerEvents="none";
     el("rect",{x:ox+(c.x-MURO)*s,y:oy+(c.y-MURO)*s,width:(c.w+2*MURO)*s,height:(c.h+2*MURO)*s,fill:"transparent"},gp);
     const au=autorCorto(p.src==null?claveDe(S):p.src);
