@@ -1445,7 +1445,7 @@ function conEstado(T,id,mode,fn){ const S0=S, sel0=T.sel, mode0=T.mode, f0=selF,
   try{ fn(); }catch(e){ if(e!==MINI_STOP) console.warn(e); }
   finally{ T.sel=sel0; T.mode=mode0; S=S0; selF=f0; selBody=b0; selHueco=h0; selExtra=x0; } }
 /* matriz: todo con líneas finas; lo seccionado (muros, techos y suelos cortados) un poco más grueso */
-const MX_FINO=.6, MX_CORTE=2.0; /* factor de las líneas; grosor visible del contorno de lo cortado, en px */
+const MX_FINO=.6, MX_CORTE=1.33; /* factor de las líneas; grosor visible del contorno de lo cortado, en px */
 function afinarMatriz(svg){ if(!svg) return;
   svg.querySelectorAll("[stroke-width]").forEach(e=>{ if(e.hasAttribute("data-poche")){ e.setAttribute("stroke-width",2*MX_CORTE); return; }
     const w=parseFloat(e.getAttribute("stroke-width")); if(w>0) e.setAttribute("stroke-width",+Math.max(Math.min(w,.25),w*MX_FINO).toFixed(3)); }); }
