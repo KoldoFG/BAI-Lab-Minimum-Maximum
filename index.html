@@ -1132,7 +1132,7 @@ function escenaAxo(o,dx,dy,pref,E){
   const rect=(x0,y0,x1,y1,z,g,w)=>{ const q=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]]; q.forEach((p,i)=>{ const r=q[(i+1)%4]; seg([p[0],p[1],z],[r[0],r[1],z],g,w); }); };
   const W=o.w, D=o.d, H=o.h, obra="obra", fMuro={t:MUROS==="lleno"?I:P,x:mezcla(I,P,.12),y:mezcla(I,P,.06)};
   fijarEmp(o); const NI=nichos(o);
-  caja([0,0,-.002,W,D,0],obra,"suelo",{t:css("--accent-soft"),x:P,y:P});
+  { const c=o.conf==="Cerrado"?MURO:0; caja([-c,-c,-MURO,W,D,0],obra,"suelo",{t:css("--accent-soft"),x:P,y:P}); } /* forjado del espesor del muro; en las estancias cerradas pasa bajo los muros N y O */
   E.salas.push({x0:dx,y0:dy,x1:dx+W,y1:dy+D,h:H,cerr:o.conf==="Cerrado",pref});
   if(o.conf==="Cerrado"){
     ["N","O"].forEach(k=>murosAxo(o,k).forEach(b=>{ caja(b,obra,"muro",fMuro); E.muros.push(E.cajas[E.cajas.length-1]); }));
