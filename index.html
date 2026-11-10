@@ -1169,10 +1169,11 @@ function escenaAxo(o,dx,dy,pref,E){
       const fa=nor[(i+n-1)%n], fb=nor[i], sil=(fa[0]+fa[1]>1e-9)!==(fb[0]+fb[1]>1e-9), v=op.vert?op.vert(i,sil):(sil?[z0,z1]:null); if(v&&v[1]-v[0]>1e-6) seg([p[0],p[1],v[0]],[p[0],p[1],v[1]],g,w); }); };
   const W=o.w, D=o.d, H=o.h, obra="obra", fMuro={t:MUROS==="lleno"?I:P,x:mezcla(I,P,.12),y:mezcla(I,P,.06)};
   fijarEmp(o); const NI=nichos(o);
-  { const c=o.conf==="Cerrado"?MURO:0; caja([-c,-c,-MURO,W,D,0],obra,"suelo",{t:css("--accent-soft"),x:P,y:P}); } /* forjado del espesor del muro; en las estancias cerradas pasa bajo los muros N y O */
+  const corte=()=>{ const b=E.cajas[E.cajas.length-1]; if(b){ b.cx=dx+W; b.cy=dy+D; b.cz=H; } }; /* planos de corte: los muros E y S quitados (x=W, y=D) y el techo (z=H) */
+  { const c=o.conf==="Cerrado"?MURO:0; caja([-c,-c,-MURO,W,D,0],obra,"suelo",{t:css("--accent-soft"),x:P,y:P}); corte(); } /* forjado del espesor del muro; en las estancias cerradas pasa bajo los muros N y O */
   E.salas.push({x0:dx,y0:dy,x1:dx+W,y1:dy+D,h:H,cerr:o.conf==="Cerrado",pref});
   if(o.conf==="Cerrado"){
-    ["N","O"].forEach(k=>murosAxo(o,k).forEach(b=>{ caja(b,obra,"muro",fMuro); E.muros.push(E.cajas[E.cajas.length-1]); }));
+    ["N","O"].forEach(k=>murosAxo(o,k).forEach(b=>{ const n0=E.cajas.length; caja(b,obra,"muro",fMuro); if(E.cajas.length>n0){ corte(); E.muros.push(E.cajas[E.cajas.length-1]); } }));
     /* muros E y S, quitados para ver el interior: su arista superior y la esquina, de puntos */
     virt([W,0,H],[W,D,H]); virt([0,D,H],[W,D,H]); virt([W,D,0],[W,D,H]);
     NI.filter(n=>n.k==="E"||n.k==="S").forEach(n=>{ const Q=(u,v,z)=>n.k==="E"?[W+v,u,z]:[u,D+v,z];
@@ -1185,7 +1186,7 @@ function escenaAxo(o,dx,dy,pref,E){
     seg(N?[um,-MURO/2,z]:[-MURO/2,um,z],N?[um,-MURO/2,z+h]:[-MURO/2,um,z+h],obra+"·v",.5); }); /* montante de la ventana, en el plano medio del muro */
   const mue={t:Fa,x:P,y:P};
   o.furn.filter(f=>f.on).forEach(f=>{ const g=pref+f.id, x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d,z0=f.z||0,h=z0+Math.max(.02,f.h), C=(a,b,c,d,e,ff)=>caja([a,b,e,c,d,ff],g,"mueble",mue);
-    if(esTabique(f)){ caja([x,y,z0,X,Y,h],obra,"tabique",fMuro); return; }
+    if(esTabique(f)){ const n0=E.cajas.length; caja([x,y,z0,X,Y,h],obra,"tabique",fMuro); if(E.cajas.length>n0) corte(); return; }
     if(/mesa/i.test(f.n)&&!/sobre/i.test(f.n)&&f.h>.06){ const e=.03,t=.03; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,h-e)); C(x,y,X,Y,h-e,h); return; }
     if(esCamaAlta(f)){ C(x,y,X,Y,z0,h); seg([x,y,h],[X,Y,h],g,.35); return; }
     if(esSofa(f)){ const t=.03, zb=z0+f.h-SOFA_E; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,zb)); C(x,y,X,Y,zb,h); barrasSofa(f).forEach(([,a,b,c,d])=>C(a,b,c,d,h,h+SOFA_R)); return; }
@@ -1269,11 +1270,16 @@ function pintarAxo(g,E,s,ox,oy){
   for(let i=0;i<n;i++) vis(i);
   const gR=el("g",{},g), gL=el("g",{fill:"none","stroke-linecap":"butt"},g);
   const dentroObra=b=>E.muros.some(m=>b.x0>=m.x0-1e-6&&b.x1<=m.x1+1e-6&&b.y0>=m.y0-1e-6&&b.y1<=m.y1+1e-6&&b.z0>=m.z0-1e-6&&b.z1<=m.z1+1e-6);
-  orden.forEach(i=>{ const b=B[i]; if(!AXO_RELLENO||!b.fill||(b.k==="mueble"&&dentroObra(b))) return;
-    const pg=(pts,f)=>el("polygon",{points:pts.map(p=>P2(p).join(",")).join(" "),fill:f},gR);
-    pg([[b.x0,b.y0,b.z1],[b.x1,b.y0,b.z1],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],b.fill.t);
-    pg([[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],b.fill.x);
-    pg([[b.x0,b.y1,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],b.fill.y); });
+  /* muros rellenos: lo cortado de la obra (la cabeza de muros y tabiques en el plano del techo y sus testas y el canto del forjado donde se quitan los muros E y S) en negro;
+     el resto de caras, en blanco, para que lo de delante tape lo de detrás */
+  const LLENO=MUROS==="lleno", ce=(v,c)=>c!=null&&Math.abs(v-c)<1e-6, esObra=b=>b.k==="muro"||b.k==="tabique"||b.k==="suelo";
+  const color=(b,c)=>{ if(!LLENO) return b.fill[c]; if(!esObra(b)) return P0;
+    if(c==="t") return b.k!=="suelo"&&ce(b.z1,b.cz)?I:P0; if(c==="x") return ce(b.x1,b.cx)?I:P0; return ce(b.y1,b.cy)?I:P0; };
+  orden.forEach(i=>{ const b=B[i]; if(!(AXO_RELLENO||LLENO)||!b.fill||(b.k==="mueble"&&dentroObra(b))) return;
+    const pg=(pts,f)=>el("polygon",{points:pts.map(p=>P2(p).join(",")).join(" "),fill:f,stroke:f,"stroke-width":.3,"stroke-linejoin":"round"},gR);
+    pg([[b.x0,b.y0,b.z1],[b.x1,b.y0,b.z1],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],color(b,"t"));
+    pg([[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],color(b,"x"));
+    pg([[b.x0,b.y1,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],color(b,"y")); });
   /* aristas reales: en cada grupo (la obra entera, cada mueble) solo los pliegues del sólido, sin las juntas entre prismas */
   const porGrupo={}; B.forEach(b=>(porGrupo[b.g]=porGrupo[b.g]||[]).push(b));
   const ocupa=(L,p)=>L.some(b=>p[0]>b.x0&&p[0]<b.x1&&p[1]>b.y0&&p[1]<b.y1&&p[2]>b.z0&&p[2]<b.z1);
