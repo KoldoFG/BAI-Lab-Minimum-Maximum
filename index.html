@@ -625,6 +625,15 @@ body[data-modo=con] .hoja.con .ayuda{top:14px;bottom:auto;max-width:620px}
 .indice .carps button{padding-left:42.5px}
 .indice .carps .nota{margin:8px 16px 0 42.5px}
 .indice .carps h4{margin-top:4px}
+
+/* 05 Ud. Hab.: los párrafos explicativos, alineados con los títulos y el comienzo de las cajas */
+body[data-modo=con] .panel .sec>.nota{margin-left:26px}
+
+/* avisos en rojo de la ficha (caja de partida, máximo provisional): alineados con los títulos y el comienzo de las cajas */
+.panel .ficha .prov{margin-left:26px}
+
+/* 03 Comparar: también sus párrafos, alineados con los títulos */
+body[data-modo=cmp] .panel .sec>.nota{margin-left:26px}
 </style>
 </head>
 <body>
@@ -1011,6 +1020,10 @@ function cota(g,x1,y1,x2,y2,label,color,vertical){ if(FIJA) return;
 /* tres gruesos de línea en los dibujos: el de muros y tabiques (cortados); LW.M, el perimetral de los módulos altos, para lo demás cortado o alto
    (piezas que pasan del plano de corte, hojas de puertas, carpinterías, figura); LW.F, el fino del aspa, para todo lo demás */
 const LW={M:.75,F:.4};
+/* fuegos: cuatro en cuadro; si la pieza se estrecha a 30 cm o menos, solo dos, en fila a lo largo, con el diámetro de los iniciales (18 cm) */
+function fuegosPos(W,D){ const ang=Math.min(W,D);
+  if(ang<=.30+1e-9){ const r=Math.min(.09,ang*.45), L=Math.max(W,D), a=L*.3, b=L*.7, c=ang/2; return W>=D?[[a,c,r],[b,c,r]]:[[c,a,r],[c,b,r]]; }
+  const r=ang*.15; return [[.3,.3],[.7,.3],[.3,.7],[.7,.7]].map(([u,v])=>[W*u,D*v,r]); }
 const piezaAlta=f=>((f.z||0)+f.h)>1.0||!!f.techo;
 function escalaGrafica(g,x,y,s,maxW){ if(MINI||FIJA) return;
   // escala gráfica: solo marcas verticales en 0, a, b y c, con rótulos sobre a, b y c
@@ -1113,7 +1126,7 @@ function glifo(g,f,x,y,w,h){
   else if(n.includes("silla")){ const k=w/f.w, t=Math.max(3,.03*k), lado=ladoRespaldo(f,cur()); // respaldo: segunda línea a 3 cm del borde
     const L={N:[x,y+t,x+w,y+t],S:[x,y+h-t,x+w,y+h-t],O:[x+t,y,x+t,y+h],E:[x+w-t,y,x+w-t,y+h]}[lado];
     el("line",{x1:L[0],y1:L[1],x2:L[2],y2:L[3],stroke:I,"stroke-width":LW.F},g); }
-  else if(n.includes("fuegos")||n.includes("placa")){ const r=Math.min(w,h)*.15; [[.3,.3,1],[.7,.3,1],[.3,.7,1],[.7,.7,1]].forEach(([fx,fy,k])=>el("circle",{cx:x+w*fx,cy:y+h*fy,r:r*k,fill:"none",stroke:I,"stroke-width":LW.F},g)); }
+  else if(n.includes("fuegos")||n.includes("placa")){ const pts=fuegosPos(f.w,f.d), k=w/f.w; pts.forEach(([u,v,r])=>el("circle",{cx:x+u*k,cy:y+v*k,r:r*k,fill:"none",stroke:I,"stroke-width":LW.F},g)); }
   else if(n.includes("fregadero")){ // pila de fondo fijo (0,43 m); su ancho sigue al del módulo con 6 cm de canto a cada lado
     const k=w/f.w, ejeY=!((f.rot||0)%2); // ejeY: el fondo del módulo va en vertical; cambia solo al girar la pieza
     const FONDO=.43*k, CANTO=.06*k, r=.02*k;
@@ -1442,7 +1455,7 @@ function escenaAxo(o,dx,dy,pref,E){
       prisma(cis,z0,zt,g,{sinBase:[2],vert:i=>i>=2?[h,zt]:[z0,zt]}); /* la cisterna, más alta: su frente baja hasta la taza */
       prisma(taza,z0,h,g,{sinBase:[0],vert:(i,sil)=>i<2?null:(sil?[z0,h]:null)}); return; }
     C(x,y,X,Y,z0,h);
-    if(/fuegos|placa/i.test(f.n)){ const r=Math.min(f.w,f.d)*.15; [[.3,.3],[.7,.3],[.3,.7],[.7,.7]].forEach(([u,v])=>anillo(x+f.w*u,y+f.d*v,r,r,h,g,LW.F)); }
+    if(/fuegos|placa/i.test(f.n)){ fuegosPos(f.w,f.d).forEach(([u,v,r])=>anillo(x+u,y+v,r,r,h,g,LW.F)); }
     if(/fregadero/i.test(f.n)){ const ejeY=!((f.rot||0)%2), F=.43, Cc=.06; const bw=ejeY?Math.max(.05,f.w-2*Cc):Math.min(F,f.w), bd=ejeY?Math.min(F,f.d):Math.max(.05,f.d-2*Cc);
       const x0=x+(f.w-bw)/2, y0=y+(f.d-bd)/2; rect(x0,y0,x0+bw,y0+bd,h,g,LW.F); anillo(x+f.w/2,y+f.d/2,.025,.025,h,g,LW.F); }
     if(/cama/i.test(f.n)) seg([x,y,h],[X,Y,h],g,LW.F);
@@ -1915,7 +1928,7 @@ function panelConectar(){
     ${varios?`<div class="pz-src"><span></span><span class="etq">de</span><select class="sm" id="sSrc" aria-label="Alumno del que tomar la estancia">${F.map(f=>`<option value="${esc(f)}" ${f===CON_SRC?"selected":""}>${esc(nombreAutor(f))}</option>`).join("")}</select></div>`:""}
     <div class="pz-lista">${S.order.map(filaAdd).join("")}</div>
     <p class="nota">Cada estancia entra con su proyecto del 01 Mínimos o del 02 Máximos, con huecos y mobiliario. Puedes repetir una estancia (dos dormitorios, dos baños)${varios?" y mezclar estancias de distintos alumnos: elige de quién en «de»":""}.</p></div>
-  <div class="sec"><h3>En la unidad <i>${U.p.length} estancias</i></h3>${U.p.length?`<div class="pz-lista">${U.p.map(filaP).join("")}</div>`:'<p class="nota" style="margin:0">Aún no hay estancias en el lienzo.</p>'}
+  <div class="sec"><h3>En la unidad <i>${U.p.length} estancias</i></h3>${U.p.length?`<div class="pz-lista">${U.p.map(filaP).join("")}</div>`:'<p class="nota" style="margin-top:0;margin-bottom:0">Aún no hay estancias en el lienzo.</p>'}
     ${varios&&U.p.length?`<div class="pz-src"><span></span><button class="btn" id="bBarajar" title="Toma cada estancia de un alumno distinto, al azar entre quienes la han entregado">Barajar autores</button></div>`:""}
     <p class="nota">Pulsa una fila para señalarla en el lienzo. Para girar o quitar una estancia, púlsala en el dibujo.${varios?" Cambia el autor de una estancia sin moverla de su sitio con su desplegable.":""} Superficie y volumen suman las estancias con sus nichos; lo que se solapa entre estancias cuenta una sola vez y no cuentan los muros.</p></div>`;
   const p=$("#panel");
