@@ -1771,9 +1771,10 @@ function dibujarCelda(td,id,T){
 }
 function dibujarFila(tr,cols){ if(tr._ok) return; tr._ok=true; const id=tr.dataset.id;
   const tds=[...tr.querySelectorAll("td.cel[data-k]")].map(td=>({td,T:cols.find(c=>c.k===td.dataset.k).T}));
-  MINI={fits:{},s:null}; tds.forEach(o=>dibujarCelda(o.td,id,o.T));
-  MINI.s=MINI.fits; if(MINI.s.plan!=null&&MINI.s.sec!=null) MINI.s.plan=MINI.s.sec=Math.min(MINI.s.plan,MINI.s.sec); /* planta y sección, a la misma escala */
-  tds.forEach(o=>dibujarCelda(o.td,id,o.T)); MINI=null;
+  /* cada casilla con su propia escala: el dibujo crece hasta llenar su casilla (planta y sección a la misma escala; cada casilla lleva su escala gráfica) */
+  tds.forEach(o=>{ MINI={fits:{},s:null}; dibujarCelda(o.td,id,o.T);
+    MINI.s=MINI.fits; if(MINI.s.plan!=null&&MINI.s.sec!=null) MINI.s.plan=MINI.s.sec=Math.min(MINI.s.plan,MINI.s.sec); /* planta y sección, a la misma escala */
+    dibujarCelda(o.td,id,o.T); MINI=null; });
 }
 function vistaMatriz(){
   const v=$("#vista"), cols=columnasMatriz(), ids=S.order.slice();
