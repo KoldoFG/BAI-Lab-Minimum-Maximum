@@ -15,7 +15,7 @@
 <meta name="application-name" content="BAI Lab">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 /* Layout: cabecera (marca + pestañas numeradas) · índice de espacios | dibujo | panel de 340 px. Hoja de libro suiza: blanco frío, tinta negra, un rojo señal para el máximo, filetes de 0,5 px. */
 :root{
@@ -421,12 +421,211 @@ body{touch-action:manipulation;-webkit-text-size-adjust:100%}
   .panel{padding:0 12px calc(40px + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== PRUEBA DE DISEÑO 2 · catálogo: grotesca regular, un solo cuerpo pequeño, filetes finos negros, sin serif =====
+   Todo el cambio está en este bloque, en el enlace de fuentes y en la fuente de los textos de los dibujos. */
+:root{ --paper:#ffffff; --faint:#e4e4e0;
+  --f:"Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"Inter Tight","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --xs:11px; --s:12px; --m:12.5px; }
+body{font-variant-numeric:tabular-nums;letter-spacing:-.003em}
+/* sin negritas: todo regular; los rótulos en negro, no en gris */
+.tabs button{font-weight:400;font-size:13px;color:var(--mute)}
+.tabs button i{font-size:var(--xs)}
+.quien label,.sec h4,.hueco.cab,.mueble.cab{text-transform:none;letter-spacing:0;font-size:var(--xs)}
+.lam .cap{font-size:12.5px;font-weight:500}
+.lam .cap span{font-weight:400}
+.indice button{font-size:13px}
+/* título de la estancia y cifras: regular, sin exagerar */
+.titulo input{font-size:28px;font-weight:500;letter-spacing:-.02em}
+.ficha .titulo input{letter-spacing:-.01em}
+.cifras b{font-size:28px;font-weight:400;letter-spacing:-.03em}
+.cifras b small{font-size:12px;font-weight:400}
+.cifras span{color:var(--ink)}
+.mt .tot b{font-weight:400;font-size:19px}
+/* bloques: título regular y filas como una ficha de catálogo, con filetes finos */
+.sec+.sec,.sec.ficha+.sec{border-top:1px solid var(--ink)}
+.sec h3{font-size:13px;font-weight:500;letter-spacing:-.005em}
+.sec h4{color:var(--ink);font-weight:400;border-top:.5px solid var(--ink);padding-top:6px}
+.campo{border-top:.5px solid var(--ink);padding:5px 0}
+.campo label{color:var(--ink)}
+.cifras span,.nota,.mt .cif{color:var(--ink)}
+/* textos largos: misma grotesca, cuerpo pequeño */
+.nota{font-size:12px;line-height:1.35}
+.ayuda{font-size:11.5px;line-height:1.35;bottom:auto;top:32px;max-width:40%;color:var(--mute)}
+label.area textarea,label.area input,.resp textarea{font-size:12.5px;line-height:1.38}
+.mt .arg{font-size:12px;line-height:1.35}
+
+/* ===== PRUEBA DE DISEÑO 4 · sin columna izquierda: el programa (lista de estancias) pasa arriba de la columna derecha ===== */
+@media (min-width:901px){
+  .main{grid-template-columns:minmax(0,1fr) var(--panel);grid-template-rows:auto minmax(0,1fr)}
+  .vista{grid-column:1;grid-row:1/3}
+  .indice{grid-column:2;grid-row:1;border-right:0;border-left:.5px solid var(--rule);border-bottom:1px solid var(--ink);background:var(--paper);
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-content:start;padding:12px 0 10px;max-height:42vh}
+  .indice>h4,.indice>.carps{grid-column:1/-1}
+  .indice h4{margin:0 16px 6px}
+  .indice button{grid-template-columns:22px minmax(0,1fr);padding:4px 8px 4px 16px;font-size:12.5px}
+  .indice button>span{white-space:normal}
+  .indice .carps{margin:8px 0 -10px}
+  .indice .carps button{grid-template-columns:minmax(0,1fr) auto 14px}
+  .panel{grid-column:2;grid-row:2}
+}
+
+/* planta y sección más juntas: la columna de la planta se estrecha y el blanco sobrante pasa a la derecha de la sección y la axonometría */
+@media (min-width:901px){ .hoja{grid-template-columns:minmax(0,1.32fr) minmax(0,1fr)} } /* la planta, más ancha: sección y axonometría a la derecha */
+
+/* sin línea vertical entre los dibujos y la columna derecha */
+@media (min-width:901px){ .panel,.indice{border-left:0} .hoja>.lam:not(.planta){border-right:0} }
+
+/* sin filetes horizontales de maquetación: los bloques se separan solo por el blanco (se mantienen el subrayado de los campos y el de la pestaña activa) */
+header{border-bottom:0}
+.lam{border-bottom:0}
+.sec+.sec,.sec.ficha+.sec{border-top:0}
+.sec{padding-top:18px}
+.sec h4,.campo{border-top:0}
+.mueble,.mueble2{border-bottom:0}
+.indice .carps{border-top:0}
+@media (min-width:901px){ .indice{border-bottom:0} }
+
+/* barras de 01 Tu mínimo: el trazo más fino posible (un píxel de pantalla) */
+.campo input[type=range]::-webkit-slider-runnable-track{height:1px}
+.campo input[type=range]::-moz-range-track{height:1px}
+.campo input[type=range]::-moz-range-progress{height:1px}
+.campo input[type=range]::-webkit-slider-thumb{margin-top:-7.5px}
+@media (min-resolution:2dppx){ /* en pantallas de alta densidad, medio píxel: la mitad superior del trazo de 1px */
+  .campo input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(var(--ink) 0 50%,transparent 50%)}
+  .campo input[type=range]::-moz-range-track{background:linear-gradient(var(--ink) 0 50%,transparent 50%)}
+  .campo input[type=range]::-moz-range-progress{background:linear-gradient(var(--ink) 0 50%,transparent 50%)} }
+
+/* sin título de la estancia: las cifras abren la ficha */
+.ficha>.cifras:first-child{margin-top:0}
+
+/* «PROGRAMA · EJ. 1» alineado con los textos y el comienzo de las cajas (Alumno, Exportar estancia, nombres de estancia) */
+@media (min-width:901px){ .indice h4{margin-left:42.5px} }
+.indice h4{margin-left:42.5px}
+/* la barra de las medidas, dibujada aparte: medio píxel en pantallas retina (un punto físico), sin depender del dibujo del deslizador del navegador */
+.campo input[type=range]::-webkit-slider-runnable-track{background:transparent!important}
+.campo input[type=range]::-moz-range-track{background:transparent!important}
+.campo input[type=range]::-moz-range-progress{background:transparent!important}
+.campo .desl::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:var(--ink);pointer-events:none;transform-origin:0 0}
+@media (min-resolution:2dppx){ .campo .desl::before{transform:scaleY(.5)} }
+
+/* muros, idioma, deshacer y rehacer: bajo «Exportar estancia» e «Importar estancia», en sus mismas columnas */
+.ajustes{grid-column:3;display:grid;grid-template-columns:20px minmax(0,1fr) minmax(0,1fr);gap:6px;padding:0 16px 10px 16.5px;align-self:start}
+.ajustes .conmut{grid-column:2;display:flex;gap:6px;align-items:center}
+.ajustes .idioma,.ajustes .idioma.conm{margin-left:0}
+.ajustes .undo{grid-column:3;padding-left:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ajustes .undo .btn{padding:3px 6px;font-size:var(--xs);height:24px;display:flex;align-items:center;justify-content:center;gap:4px}
+.barra{grid-row:2/4;align-self:end}
+@media (max-width:600px){ .ajustes{grid-column:1/-1;grid-template-columns:0 minmax(0,1fr) minmax(0,1fr);padding:0 12px 8px 6px} .barra{grid-row:auto} }
+
+.titulo.sinmay input{text-transform:none}
+
+/* ===== maquetación: a la izquierda, pestañas arriba, dibujos y la marca BAI abajo; a la derecha, una sola columna desde arriba
+   (alumno, exportar/importar, ajustes, programa y el panel) ===== */
+@media (min-width:901px){
+  .app{grid-template-columns:minmax(0,1fr) var(--panel);grid-template-rows:auto auto auto auto minmax(0,1fr) auto;
+    grid-template-areas:"barra quien" "vista acciones" "vista ajustes" "vista indice" "vista panel" "marca panel"}
+  header,.main{display:contents}
+  .barra{grid-area:barra;align-self:end;padding-top:10px}
+  .quien{grid-area:quien}
+  .acciones{grid-area:acciones}
+  .ajustes{grid-area:ajustes}
+  .indice{grid-area:indice}
+  .vista{grid-area:vista}
+  .panel{grid-area:panel}
+  .marca{grid-area:marca;padding:10px 16px 14px;background:var(--paper)}
+}
+
+/* 05 Ud. Hab.: sin la lista del programa (las estancias se añaden desde el panel) */
+body[data-modo=con] .indice{display:none}
+
+/* «Programa habitacional», con el mismo cuerpo y peso que los títulos de bloque («Tu mínimo») */
+.indice h4{font-size:13px;line-height:16px;font-weight:500;letter-spacing:-.005em;color:var(--ink);text-transform:none;margin-bottom:10px}
+
+/* ===== maquetación 2: arriba a la derecha el programa; abajo a la derecha alumno, exportar/importar y ajustes, a la altura de la marca BAI (más grande) ===== */
+@media (min-width:901px){
+  .app{grid-template-rows:44px auto minmax(0,1fr) auto auto auto;
+    grid-template-areas:"barra indice" "vista indice" "vista panel" "marca quien" "marca acciones" "marca ajustes"}
+  .indice{max-height:none;padding-top:22px;padding-bottom:34px}
+  .quien{padding-top:12px}
+  .ajustes{padding-bottom:14px}
+  .marca{align-self:end;padding:0 16px 14px}
+}
+.marca .logo{width:117.6px;height:72px;margin-top:0}
+.marca{gap:22px}
+.marca .lineas{display:flex;flex-direction:column;justify-content:space-between;height:72px;column-gap:0}
+.marca .lineas .lab{font-size:22px;line-height:22px;letter-spacing:-.01em;color:var(--ink)}
+.marca .lineas .lab b{font-weight:500}
+
+/* marca algo mayor; la columna derecha (su parte desplazable) termina en la línea de la base de la escala gráfica */
+.marca .logo{width:147px;height:90px}
+.marca .lineas{height:90px}
+.marca .lineas .lab{font-size:26px;line-height:26px}
+@media (min-width:901px){ .panel{margin-bottom:46px} }
+
+/* ===== matriz: cada casilla a dos columnas. Arriba planta y sección (misma escala, apoyadas en la misma línea);
+   abajo, cifras, argumento y escala gráfica a la izquierda y la axonometría a la derecha. Textos a los tamaños de la app ===== */
+.mt td.cel{width:440px;min-width:440px;max-width:440px;padding:10px 12px 12px}
+.mt .mc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:200px 190px;column-gap:12px;row-gap:6px}
+.mt .mc .mp,.mt .mc .msec,.mt .mc .maxo{width:100%;height:100%}
+.mt .minfo{display:flex;flex-direction:column;min-width:0;min-height:0}
+.mt .minfo .tot{margin:6px 0 10px;grid-template-columns:auto auto;justify-content:start;column-gap:22px}
+.mt .minfo .tot b{font-size:28px;font-weight:400;letter-spacing:-.03em}
+.mt .minfo .tot.t3{grid-template-columns:auto auto auto;column-gap:14px}
+.mt .minfo .tot.t3 b{font-size:17px}
+.mt .minfo .tot b small{font-size:12px;font-weight:400}
+.mt .minfo .tot span{font-size:11px;color:var(--mute)}
+.mt .minfo .cif{margin:0 0 6px}
+.mt .minfo .arg{font-size:12px;line-height:1.35;-webkit-line-clamp:5}
+.mt .minfo .mesc{margin-top:auto;width:100%;height:26px;flex:none}
+
+/* superficie y volumen (sin piezas): más grandes, alineados con el comienzo de las cajas (columnas de Exportar / Importar) */
+.cifras.dos{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr);column-gap:6px}
+.cifras.dos b{font-size:36px;letter-spacing:-.035em}
+.cifras.dos b small{font-size:13px}
+
+/* el deslizador del navegador, invisible (sigue funcionando): la línea y el tirador los dibuja la app, para que ningún navegador los tape */
+.campo .desl input[type=range]{opacity:0}
+
+/* marca: LAB más grande arriba; las tres líneas grises juntas abajo; todo entre el borde superior e inferior del logo */
+.marca .lineas{justify-content:flex-start;row-gap:0}
+.marca .lineas .lab{font-size:44px;line-height:32px;margin:0 0 auto}
+.marca .lineas>span:not(.lab){line-height:13px}
+
+/* 04 Matriz: el título y el selector Mínimos / Máximos, arriba de la columna derecha; sin la lista del programa ni el título de la vista */
+body[data-modo=mx] .indice{display:none}
+.mxcab{padding-top:14px!important}
+@media (min-width:901px){ body[data-modo=mx] .panel{grid-row:1/4} } /* sin programa: la columna empieza arriba, a la altura de las pestañas */
+.mxcab .cifras span{white-space:nowrap}
+.mxcab .cifras{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr);column-gap:6px}
+.mxtit{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-left:26.5px}
+.mxtit h3{margin:0;font-size:13px;font-weight:500;counter-increment:none}
+.mxtit h3::before{content:none!important}
+.mxcab .cifras{margin-top:14px}
+.mtz{padding-top:62px}
+
+/* 04 Matriz: párrafos y cajas de 01, 02 y 03 alineados con el arranque de sus títulos */
+body[data-modo=mx] .panel .sec:not(.mxcab)>.nota, body[data-modo=mx] .panel .sec:not(.mxcab)>.fila{margin-left:var(--tit,26px)}
+
+/* 04 Matriz, líneas: sin filete superior ni borde izquierdo; las horizontales arrancan en el margen izquierdo (el de las pestañas) y las verticales suben hasta arriba */
+.mtz .mt{margin-left:16px}
+.mt thead th{border-top:0}
+.mt tbody th{padding-left:0}
+.mt th,.mt td{border-color:var(--ink)}
+
+/* 05 Ud. Hab.: sin rótulo en el lienzo; la ayuda arriba (se va con la primera estancia); los mandos de escala junto al título, arriba de la columna derecha */
+body[data-modo=con] .hoja.con .cap, body[data-modo=con] .hoja.con>.lam>.zoom{display:none}
+body[data-modo=con] .hoja.con .ayuda{top:14px;bottom:auto;max-width:620px}
+@media (min-width:901px){ body[data-modo=con] .panel{grid-row:1/4} }
+.titulo .zoom.zp{position:static;display:flex;gap:4px;margin-left:auto;align-self:center}
+.titulo .zoom.zp .btn{padding:3px 8px;font-size:var(--xs);min-width:24px}
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="marca"><span class="logo" role="img" aria-label="BAI"></span><div class="lineas"><span class="lab"><b>LAB</b> ·</span><span>Dirección: Deplazes, Mangado</span><span>Profesorado: Fdez. Gaztelu, Oiza, Olite, Tabuenca, Vélaz</span><span>01 Espacios mínimos · 02 Espacios máximos · noviembre 2026</span></div></div>
+    <div class="marca"><span class="logo" role="img" aria-label="BAI"></span><div class="lineas"><span class="lab"><b>LAB</b></span><span>Dirección: Deplazes, Mangado</span><span>Profesorado: Fdez. Gaztelu, Oiza, Olite, Tabuenca, Vélaz</span><span>01 Espacios mínimos · 02 Espacios máximos · noviembre 2026</span></div></div>
     <div class="quien">
       <label for="iAlumno">Alumno<span class="al"><input id="iAlumno" type="text" placeholder="Nombre y apellido" autocomplete="off"><span class="pasar" id="pasar" hidden><button type="button" id="bPrev" title="Alumno anterior (misma estancia y pestaña)" aria-label="Alumno anterior">‹</button><small id="pasarN"></small><button type="button" id="bNext" title="Alumno siguiente (misma estancia y pestaña)" aria-label="Alumno siguiente">›</button></span></span></label>
       <label for="iGrupo">Grupo<select id="iGrupo"><option value=""></option><option>Patxi</option><option>Andrea</option></select></label>
@@ -440,15 +639,13 @@ body{touch-action:manipulation;-webkit-text-size-adjust:100%}
         <button data-m="con" aria-pressed="false" title="Unidad habitacional: conectar estancias"><i>05</i>Ud. Hab.</button>
       </div>
       <select class="selm" id="selM" aria-label="Espacio"></select>
-      <div class="idioma conm" id="murosSel" role="group" aria-label="Muros"><button data-muros="lleno" aria-pressed="false" title="Muros con relleno negro"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="currentColor"/></svg></button><button data-muros="hueco" aria-pressed="true" title="Muros sin relleno"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button></div>
-      <div class="idioma" id="idioma" role="group" aria-label="Idioma"><button data-lang="es" aria-pressed="true" title="Castellano">ES</button><button data-lang="en" aria-pressed="false" title="English">EN</button></div>
-      <div class="undo"><button class="btn" id="bUndo" title="Deshacer (Ctrl+Z / ⌘Z)" aria-label="Deshacer" disabled>↶ <span>Deshacer</span></button><button class="btn" id="bRedo" title="Rehacer (Ctrl+Mayús+Z / ⌘⇧Z)" aria-label="Rehacer" disabled>↷ <span>Rehacer</span></button></div>
     </div>
     <div class="acciones">
       <button class="btn" id="bEstancia" title="Guarda la estancia abierta en un archivo para enviarlo al profesor">Exportar estancia</button>
       <button class="btn" id="bImport" title="Carga archivos de estancia (.json); puedes elegir varios a la vez">Importar estancia</button>
       <input type="file" id="fImport" accept=".json,application/json" multiple hidden>
     </div>
+    <div class="ajustes"><div class="conmut">      <div class="idioma conm" id="murosSel" role="group" aria-label="Muros"><button data-muros="lleno" aria-pressed="false" title="Muros con relleno negro"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="currentColor"/></svg></button><button data-muros="hueco" aria-pressed="true" title="Muros sin relleno"><svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></button></div>      <div class="idioma" id="idioma" role="group" aria-label="Idioma"><button data-lang="es" aria-pressed="true" title="Castellano">ES</button><button data-lang="en" aria-pressed="false" title="English">EN</button></div></div><div class="undo"><button class="btn" id="bUndo" title="Deshacer (Ctrl+Z / ⌘Z)" aria-label="Deshacer" disabled>↶ <span>Deshacer</span></button><button class="btn" id="bRedo" title="Rehacer (Ctrl+Mayús+Z / ⌘⇧Z)" aria-label="Rehacer" disabled>↷ <span>Rehacer</span></button></div></div>
   </header>
   <div class="main">
     <nav class="indice" id="indice" aria-label="Espacios"></nav>
@@ -495,6 +692,7 @@ const EN_RE=[
  [/^(\d+) estancias$/,(m,n)=>`${n} room${n==="1"?"":"s"}`],
  [/^(\d+) turnos$/,"$1 turns"],
  [/^Programa · ej\. (\d)$/,"Programme · ex. $1"],
+ [/^Programa habitacional$/,"Housing programme"],
  [/^Carpetas · (\d+) alumnos?$/,(m,n)=>`Folders · ${n} student${n==="1"?"":"s"}`],
  [/^Mi trabajo · (.+)$/,"My work · $1"],
  [/^(.+) · tu trabajo$/,"$1 · your work"],
@@ -795,23 +993,27 @@ function placed(f){return f;} // ancho y fondo ya están en orientación colocad
 
 /* ---------- dibujo SVG ---------- */
 function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs) e.setAttribute(k,attrs[k]);if(parent) parent.appendChild(e);return e;}
-function txt(parent,x,y,s,attrs={}){const t=el("text",Object.assign({x,y,"font-family":"IBM Plex Mono, monospace","font-size":10,fill:css("--ink")},attrs),parent);t.textContent=s;return t;}
+function txt(parent,x,y,s,attrs={}){const t=el("text",Object.assign({x,y,"font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":10,fill:css("--ink")},attrs),parent);t.textContent=s;return t;}
 function cota(g,x1,y1,x2,y2,label,color,vertical){ if(FIJA) return;
   const C=color||css("--ink");
-  el("line",{x1,y1,x2,y2,stroke:C,"stroke-width":.6},g);
-  const t=5;[[x1,y1],[x2,y2]].forEach(([x,y])=>el("line",{x1:x-t,y1:y+t,x2:x+t,y2:y-t,stroke:C,"stroke-width":1.1},g));
-  if(vertical){el("line",{x1:x1-4,y1,x2:x1+4,y2:y1,stroke:C,"stroke-width":.6},g);el("line",{x1:x2-4,y1:y2,x2:x2+4,y2,stroke:C,"stroke-width":.6},g);
+  el("line",{x1,y1,x2,y2,stroke:C,"stroke-width":LW.F},g);
+  const t=5;[[x1,y1],[x2,y2]].forEach(([x,y])=>el("line",{x1:x-t,y1:y+t,x2:x+t,y2:y-t,stroke:C,"stroke-width":LW.M},g));
+  if(vertical){el("line",{x1:x1-4,y1,x2:x1+4,y2:y1,stroke:C,"stroke-width":LW.F},g);el("line",{x1:x2-4,y1:y2,x2:x2+4,y2,stroke:C,"stroke-width":LW.F},g);
     const cx=x1+12, cy=(y1+y2)/2; txt(g,cx,cy,label,{fill:C,"text-anchor":"middle",transform:`rotate(-90 ${cx} ${cy})`,"font-size":10.5});}
-  else{el("line",{x1,y1:y1-4,x2:x1,y2:y1+4,stroke:C,"stroke-width":.6},g);el("line",{x1:x2,y1:y2-4,x2,y2:y2+4,stroke:C,"stroke-width":.6},g);
+  else{el("line",{x1,y1:y1-4,x2:x1,y2:y1+4,stroke:C,"stroke-width":LW.F},g);el("line",{x1:x2,y1:y2-4,x2,y2:y2+4,stroke:C,"stroke-width":LW.F},g);
     txt(g,(x1+x2)/2,y1-5,label,{fill:C,"text-anchor":"middle","font-size":10.5});}
 }
+/* tres gruesos de línea en los dibujos: el de muros y tabiques (cortados); LW.M, el perimetral de los módulos altos, para lo demás cortado o alto
+   (piezas que pasan del plano de corte, hojas de puertas, carpinterías, figura); LW.F, el fino del aspa, para todo lo demás */
+const LW={M:.75,F:.4};
+const piezaAlta=f=>((f.z||0)+f.h)>1.0||!!f.techo;
 function escalaGrafica(g,x,y,s,maxW){ if(MINI||FIJA) return;
   // escala gráfica: solo marcas verticales en 0, a, b y c, con rótulos sobre a, b y c
   const I=css("--ink"); const sets=[[1,5,10],[1,2,5],[.5,1,2],[.2,.5,1]];
   const [a,b,c]=sets.find(t=>t[2]*s<=maxW)||sets[sets.length-1];
   const X=v=>x+v*s, hi=y-7, lo=y;
-  [0,a,b,c].forEach(v=>el("line",{x1:X(v),y1:hi,x2:X(v),y2:lo,stroke:I,"stroke-width":1},g));
-  [a,b,c].forEach(v=>txt(g,X(v),hi-5,dec(v),{"text-anchor":"middle","font-family":"Schibsted Grotesk, sans-serif","font-size":10,fill:I}));
+  [0,a,b,c].forEach(v=>el("line",{x1:X(v),y1:hi,x2:X(v),y2:lo,stroke:I,"stroke-width":LW.M},g));
+  [a,b,c].forEach(v=>txt(g,X(v),hi-5,dec(v),{"text-anchor":"middle","font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":10,fill:I}));
 }
 /* muros: con relleno negro (poché) o solo con su contorno. Sin relleno, cada grupo de muros se dibuja en dos capas:
    debajo, los rectángulos con un trazo grueso; encima, los mismos rectángulos en blanco. Queda solo el contorno del conjunto, sin las juntas entre tramos. */
@@ -821,7 +1023,7 @@ let POCHE_G=null; /* Ud. Hab.: los muros de todas las estancias en unas mismas c
 function poche(g,x,y,w,h){ if(!(w>0&&h>0)) return;
   const G=POCHE_G, mk=G&&G.mask?{mask:G.mask}:{};
   if(MUROS!=="hueco"){ el("rect",{x,y,width:w,height:h,fill:css("--ink"),...mk},G?G.a:g); return; }
-  let L=G||CAPAS.get(g); if(!L){ L={a:el("g",{},g),b:el("g",{},g)}; CAPAS.set(g,L); }
+  let L=G||CAPAS.get(g); if(!L){ L={a:el("g",{"pointer-events":"none"},g),b:el("g",{"pointer-events":"none"},g)}; CAPAS.set(g,L); } /* los muros no se pulsan: los clics pasan a las piezas (el tabique) y a los huecos que quedan debajo */
   el("rect",{x,y,width:w,height:h,fill:"none",stroke:css("--ink"),"stroke-width":3.2,"stroke-linejoin":"miter","data-poche":"",...mk},L.a); /* se ve la mitad exterior del trazo: 1,6 px */
   el("rect",{x,y,width:w,height:h,fill:css("--sheet"),...mk},L.b); }
 
@@ -829,8 +1031,8 @@ function muro(g,ox,oy,s,sp,W,D,conf,doorOn,gH){
   gH=gH||g;
   const t=.1*s, I=css("--ink"), M=css("--mute");
   const L={N:[ox-t,oy-t,W*s+2*t,t,"h"],S:[ox-t,oy+D*s,W*s+2*t,t,"h"],O:[ox-t,oy-t,t,D*s+2*t,"v"],E:[ox+W*s,oy-t,t,D*s+2*t,"v"]};
-  const dashed = (k)=>{const [x,y,w,h,o]=L[k]; const mid=o==="h"?{x1:x,y1:y+h/2,x2:x+w,y2:y+h/2}:{x1:x+w/2,y1:y,x2:x+w/2,y2:y+h}; el("line",Object.assign(mid,{stroke:I,"stroke-width":.8,"stroke-dasharray":"5 4"}),g);};
-  const sliding = (k)=>{const [x,y,w,h,o]=L[k]; if(o==="h"){el("line",{x1:x,y1:y+h*.25,x2:x+w*.6,y2:y+h*.25,stroke:I,"stroke-width":1.4},g);el("line",{x1:x+w*.4,y1:y+h*.75,x2:x+w,y2:y+h*.75,stroke:I,"stroke-width":1.4},g);} else {el("line",{x1:x+w*.25,y1:y,x2:x+w*.25,y2:y+h*.6,stroke:I,"stroke-width":1.4},g);el("line",{x1:x+w*.75,y1:y+h*.4,x2:x+w*.75,y2:y+h,stroke:I,"stroke-width":1.4},g);} };
+  const dashed = (k)=>{const [x,y,w,h,o]=L[k]; const mid=o==="h"?{x1:x,y1:y+h/2,x2:x+w,y2:y+h/2}:{x1:x+w/2,y1:y,x2:x+w/2,y2:y+h}; el("line",Object.assign(mid,{stroke:I,"stroke-width":LW.F,"stroke-dasharray":"5 4"}),g);};
+  const sliding = (k)=>{const [x,y,w,h,o]=L[k]; if(o==="h"){el("line",{x1:x,y1:y+h*.25,x2:x+w*.6,y2:y+h*.25,stroke:I,"stroke-width":LW.M},g);el("line",{x1:x+w*.4,y1:y+h*.75,x2:x+w,y2:y+h*.75,stroke:I,"stroke-width":LW.M},g);} else {el("line",{x1:x+w*.25,y1:y,x2:x+w*.25,y2:y+h*.6,stroke:I,"stroke-width":LW.M},g);el("line",{x1:x+w*.75,y1:y+h*.4,x2:x+w*.75,y2:y+h,stroke:I,"stroke-width":LW.M},g);} };
   const solid = (k)=>{
     const [x,y,w,h,o]=L[k]; const len=(o==="h"?W:D);
     // puertas de este muro: hueco [u0,u1] en metros desde el arranque interior del muro
@@ -859,24 +1061,24 @@ function muro(g,ox,oy,s,sp,W,D,conf,doorOn,gH){
       if(q.i===selHueco){ const Ac=css("--accent"); el("rect",{x:hz?ox+A:x,y:hz?y:oy+A,width:hz?B-A:w,height:hz?h:B-A,fill:"none",stroke:Ac,"stroke-width":2},gd);
         const m=P(fi,(A+B)/2,-(t+16)), gx=el("g",{"data-k":"hdel",style:"cursor:pointer"},gH); el("title",{},gx).textContent="Quitar hueco";
         el("circle",{cx:m[0],cy:m[1],r:11,fill:Ac,stroke:css("--sheet"),"stroke-width":1.5},gx);
-        txt(gx,m[0],m[1]+4.5,"×",{"text-anchor":"middle","font-family":"Schibsted Grotesk, sans-serif","font-size":14,"font-weight":700,fill:"#fff"}); }
+        txt(gx,m[0],m[1]+4.5,"×",{"text-anchor":"middle","font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":14,"font-weight":700,fill:"#fff"}); }
       if(tipo==="Puerta"){
         const ladoA=(d.lado||"a")==="a", H=P(cara,ladoA?A:B), E=P(cara,ladoA?B:A), O=[H[0]+ni[0]*sg*R,H[1]+ni[1]*sg*R];
         const cr=(O[0]-H[0])*(E[1]-H[1])-(O[1]-H[1])*(E[0]-H[0]), sw=cr>0?1:0;
-        el("line",{x1:H[0],y1:H[1],x2:O[0],y2:O[1],stroke:I,"stroke-width":1.2},gd);
-        el("path",{d:`M${O[0]} ${O[1]} A${R} ${R} 0 0 ${sw} ${E[0]} ${E[1]}`,fill:"none",stroke:I,"stroke-width":.6,"stroke-dasharray":"2 2"},gd);
+        el("line",{x1:H[0],y1:H[1],x2:O[0],y2:O[1],stroke:I,"stroke-width":LW.M},gd);
+        el("path",{d:`M${O[0]} ${O[1]} A${R} ${R} 0 0 ${sw} ${E[0]} ${E[1]}`,fill:"none",stroke:I,"stroke-width":LW.F,"stroke-dasharray":"2 2"},gd);
         el("path",{d:`M${H[0]} ${H[1]} L${O[0]} ${O[1]} A${R} ${R} 0 0 ${sw} ${E[0]} ${E[1]} Z`,fill:"transparent"},gd);
       } else if(tipo==="Corredera"){
         const off=sg*Math.max(2,.03*s), lado=d.lado||(len-q.u1>=q.u0?"b":"a"), sd=lado==="b"?1:-1;
         const libre=sd>0?len-q.u1:q.u0, sl=Math.min(q.dw*.9,Math.max(.15,libre))*s;
-        const p0=P(cara,A,off), p1=P(cara,B,off); el("line",{x1:p0[0],y1:p0[1],x2:p1[0],y2:p1[1],stroke:I,"stroke-width":2.2},gd);
+        const p0=P(cara,A,off), p1=P(cara,B,off); el("line",{x1:p0[0],y1:p0[1],x2:p1[0],y2:p1[1],stroke:I,"stroke-width":LW.M},gd);
         const u0=sd>0?B:A, u1=u0+sd*sl, e0=P(cara,u0,off), e1=P(cara,u1,off), bk=P(cara,u1-sd*5,off);
-        el("line",{x1:e0[0],y1:e0[1],x2:e1[0],y2:e1[1],stroke:I,"stroke-width":.7,"stroke-dasharray":"3 2"},gd);
+        el("line",{x1:e0[0],y1:e0[1],x2:e1[0],y2:e1[1],stroke:I,"stroke-width":LW.F,"stroke-dasharray":"3 2"},gd);
         const nx=ni[0]*3, ny=ni[1]*3;
-        el("path",{d:`M${bk[0]+nx} ${bk[1]+ny} L${e1[0]} ${e1[1]} L${bk[0]-nx} ${bk[1]-ny}`,fill:"none",stroke:I,"stroke-width":.7},gd);
+        el("path",{d:`M${bk[0]+nx} ${bk[1]+ny} L${e1[0]} ${e1[1]} L${bk[0]-nx} ${bk[1]-ny}`,fill:"none",stroke:I,"stroke-width":LW.F},gd);
       } else if(tipo==="Ventana"){
-        if(hz){ el("rect",{x:ox+A,y:y,width:B-A,height:h,fill:css("--sheet"),stroke:I,"stroke-width":.8},gd); el("line",{x1:ox+A,y1:y+h/2,x2:ox+B,y2:y+h/2,stroke:I,"stroke-width":.8},gd); }
-        else { el("rect",{x:x,y:oy+A,width:w,height:B-A,fill:css("--sheet"),stroke:I,"stroke-width":.8},gd); el("line",{x1:x+w/2,y1:oy+A,x2:x+w/2,y2:oy+B,stroke:I,"stroke-width":.8},gd); }
+        if(hz){ el("rect",{x:ox+A,y:y,width:B-A,height:h,fill:css("--sheet"),stroke:I,"stroke-width":LW.M},gd); el("line",{x1:ox+A,y1:y+h/2,x2:ox+B,y2:y+h/2,stroke:I,"stroke-width":LW.F},gd); }
+        else { el("rect",{x:x,y:oy+A,width:w,height:B-A,fill:css("--sheet"),stroke:I,"stroke-width":LW.M},gd); el("line",{x1:x+w/2,y1:oy+A,x2:x+w/2,y2:oy+B,stroke:I,"stroke-width":LW.F},gd); }
       }
     });
   };
@@ -895,34 +1097,63 @@ function bloqueInodoro(g,f,sp,x,y,w,h,st){
   else if(lado==="O"){ d=`M${x} ${y} V${y+h} H${x+w-r} A${r} ${r} 0 0 0 ${x+w} ${y+h-r} V${y+r} A${r} ${r} 0 0 0 ${x+w-r} ${y} Z`; ln=[x+c,y,x+c,y+h]; }
   else { d=`M${x+w} ${y} V${y+h} H${x+r} A${r} ${r} 0 0 1 ${x} ${y+h-r} V${y+r} A${r} ${r} 0 0 1 ${x+r} ${y} Z`; ln=[x+w-c,y,x+w-c,y+h]; }
   el("path",Object.assign({d},st),g);
-  el("line",{x1:ln[0],y1:ln[1],x2:ln[2],y2:ln[3],stroke:st.stroke,"stroke-width":.4},g);
+  el("line",{x1:ln[0],y1:ln[1],x2:ln[2],y2:ln[3],stroke:st.stroke,"stroke-width":LW.F},g);
 }
 function glifo(g,f,x,y,w,h){
   const I=css("--ink"), n=f.n.toLowerCase();
-  if(n.includes("cama")){ el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:I,"stroke-width":.4},g); } // cama: una sola diagonal de vértice a vértice opuesto
-  else if(n.includes("ducha")){el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:I,"stroke-width":.35},g);el("line",{x1:x+w,y1:y,x2:x,y2:y+h,stroke:I,"stroke-width":.35},g);el("circle",{cx:x+w/2,cy:y+h/2,r:Math.min(w,h)*.06,fill:"none",stroke:I,"stroke-width":.4},g);}
-  else if(n.includes("lavabo")||n.includes("lavamanos")){el("ellipse",{cx:x+w/2,cy:y+h/2,rx:w*.34,ry:h*.3,fill:"none",stroke:I,"stroke-width":.4},g);}
-  else if(/sofá|sofa/.test(n)){ const k=w/f.w; barrasSofa(f).forEach(([_,a,b,c,d])=>el("rect",{x:x+(a-f.x)*k,y:y+(b-f.y)*k,width:(c-a)*k,height:(d-b)*k,fill:"none",stroke:I,"stroke-width":.4},g)); } // respaldos
+  if(n.includes("cama")){ el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:I,"stroke-width":LW.F},g); } // cama: una sola diagonal de vértice a vértice opuesto
+  else if(n.includes("ducha")){el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:I,"stroke-width":LW.F},g);el("line",{x1:x+w,y1:y,x2:x,y2:y+h,stroke:I,"stroke-width":LW.F},g);el("circle",{cx:x+w/2,cy:y+h/2,r:Math.min(w,h)*.06,fill:"none",stroke:I,"stroke-width":LW.F},g);}
+  else if(n.includes("lavabo")||n.includes("lavamanos")){el("ellipse",{cx:x+w/2,cy:y+h/2,rx:w*.34,ry:h*.3,fill:"none",stroke:I,"stroke-width":LW.F},g);}
+  else if(/sofá|sofa/.test(n)){ const k=w/f.w; barrasSofa(f).forEach(([_,a,b,c,d])=>el("rect",{x:x+(a-f.x)*k,y:y+(b-f.y)*k,width:(c-a)*k,height:(d-b)*k,fill:"none",stroke:I,"stroke-width":LW.F},g)); } // respaldos
   else if(n.includes("silla")){ const k=w/f.w, t=Math.max(3,.03*k), lado=ladoRespaldo(f,cur()); // respaldo: segunda línea a 3 cm del borde
     const L={N:[x,y+t,x+w,y+t],S:[x,y+h-t,x+w,y+h-t],O:[x+t,y,x+t,y+h],E:[x+w-t,y,x+w-t,y+h]}[lado];
-    el("line",{x1:L[0],y1:L[1],x2:L[2],y2:L[3],stroke:I,"stroke-width":.4},g); }
-  else if(n.includes("fuegos")||n.includes("placa")){ const r=Math.min(w,h)*.15; [[.3,.3,1],[.7,.3,1],[.3,.7,1],[.7,.7,1]].forEach(([fx,fy,k])=>el("circle",{cx:x+w*fx,cy:y+h*fy,r:r*k,fill:"none",stroke:I,"stroke-width":.4},g)); }
+    el("line",{x1:L[0],y1:L[1],x2:L[2],y2:L[3],stroke:I,"stroke-width":LW.F},g); }
+  else if(n.includes("fuegos")||n.includes("placa")){ const r=Math.min(w,h)*.15; [[.3,.3,1],[.7,.3,1],[.3,.7,1],[.7,.7,1]].forEach(([fx,fy,k])=>el("circle",{cx:x+w*fx,cy:y+h*fy,r:r*k,fill:"none",stroke:I,"stroke-width":LW.F},g)); }
   else if(n.includes("fregadero")){ // pila de fondo fijo (0,43 m); su ancho sigue al del módulo con 6 cm de canto a cada lado
     const k=w/f.w, ejeY=!((f.rot||0)%2); // ejeY: el fondo del módulo va en vertical; cambia solo al girar la pieza
     const FONDO=.43*k, CANTO=.06*k, r=.02*k;
     const bw=ejeY?Math.max(2,w-2*CANTO):Math.min(FONDO,w-2), bh=ejeY?Math.min(FONDO,h-2):Math.max(2,h-2*CANTO);
-    el("rect",{x:x+(w-bw)/2,y:y+(h-bh)/2,width:bw,height:bh,rx:r,fill:"none",stroke:I,"stroke-width":.4},g);
-    el("circle",{cx:x+w/2,cy:y+h/2,r:.025*k,fill:"none",stroke:I,"stroke-width":.4},g); }
-  else if(n.includes("alto")||n.includes("columna")||n.includes("frigor")||(f.techo&&!((f.z||0)>=1))){ el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:I,"stroke-width":.4},g); el("line",{x1:x+w,y1:y,x2:x,y2:y+h,stroke:I,"stroke-width":.4},g); } // módulo alto: aspa de vértice a vértice
-  else if(n.includes("encimera")){ if(f.w>=f.d){const k=Math.max(1,Math.round(f.w/.6)); for(let i=1;i<k;i++) el("line",{x1:x+w*i/k,y1:y,x2:x+w*i/k,y2:y+h,stroke:I,"stroke-width":.4,"stroke-dasharray":"2 2"},g);} else {const k=Math.max(1,Math.round(f.d/.6)); for(let i=1;i<k;i++) el("line",{x1:x,y1:y+h*i/k,x2:x+w,y2:y+h*i/k,stroke:I,"stroke-width":.4,"stroke-dasharray":"2 2"},g);} }
+    el("rect",{x:x+(w-bw)/2,y:y+(h-bh)/2,width:bw,height:bh,rx:r,fill:"none",stroke:I,"stroke-width":LW.F},g);
+    el("circle",{cx:x+w/2,cy:y+h/2,r:.025*k,fill:"none",stroke:I,"stroke-width":LW.F},g); }
+  else if(n.includes("alto")||n.includes("columna")||n.includes("frigor")||(f.techo&&!((f.z||0)>=1))){ el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:I,"stroke-width":LW.F},g); el("line",{x1:x+w,y1:y,x2:x,y2:y+h,stroke:I,"stroke-width":LW.F},g); } // módulo alto: aspa de vértice a vértice
+  else if(n.includes("encimera")){ if(f.w>=f.d){const k=Math.max(1,Math.round(f.w/.6)); for(let i=1;i<k;i++) el("line",{x1:x+w*i/k,y1:y,x2:x+w*i/k,y2:y+h,stroke:I,"stroke-width":LW.F,"stroke-dasharray":"2 2"},g);} else {const k=Math.max(1,Math.round(f.d/.6)); for(let i=1;i<k;i++) el("line",{x1:x,y1:y+h*i/k,x2:x+w,y2:y+h*i/k,stroke:I,"stroke-width":LW.F,"stroke-dasharray":"2 2"},g);} }
 }
 
 /* Escala estable: mientras se edita un espacio, el dibujo conserva escala y origen; solo se reencuadra si la pieza deja de caber, si se reduce a menos de un tercio, al cambiar de espacio o de tamaño de ventana */
 const ESC={};
-const holgura=(v,tope)=>MINI?v:Math.min(tope,Math.max(v*1.4,v+1)); // margen para crecer sin reencuadrar
+const holgura=(v,tope)=>MINI?v:Math.max(v,Math.min(tope,Math.max(v*1.4,v+1))); // margen para crecer sin reencuadrar
 /* matriz: dibujos pequeños; en la primera pasada se mide la escala de cada casilla y en la segunda toda la fila se dibuja a la menor */
 let MINI=null; const MINI_STOP={};
 let FIJA=null; /* Conectar: cada estancia se dibuja a la escala y en el origen del lienzo */
+/* planta y sección a la misma escala; con la sección al lado, el borde inferior de la planta (su lado S) se alinea con el suelo de la sección
+   y la planta crece hacia arriba al aumentar el fondo. La escala es pegajosa: no cambia mientras todo quepa */
+function encuadreSec(sp){ const exS={O:0,E:0}; if(sp.conf!=="Abierto") nichos(sp).forEach(n=>{ if(n.k==="O"||n.k==="E") exS[n.k]=Math.max(exS[n.k],n.D+MURO); });
+  return {exS,ew:holgura(sp.w,6)+exS.O+exS.E,eh:holgura(sp.h,4)}; }
+/* al cambiar el fondo, la planta crece hacia arriba (el lado S queda quieto): piezas, figura, giro y huecos de O y E guardan su distancia al lado S,
+   como al cambiar el ancho guardan su distancia al lado O. Los huecos conservan su sitio sobre el muro (no se reparten en proporción) */
+function mantenerSitio(sp,k,v0,v1){ const dl=r2(v1-v0); if(!dl) return;
+  if(k==="d"){ sp.furn.forEach(f=>{ if(f.emp!=="N") f.y=r2(f.y+dl); }); sp.body.y=r2(sp.body.y+dl); if(sp.giro) sp.giro.y=r2(sp.giro.y+dl); }
+  (sp.doors||[]).forEach(d=>{ const lado=d.wall==="O"||d.wall==="E"; if(lado!==(k==="d")) return; const c=d.pos*v0+(k==="d"?dl:0); d.pos=Math.max(0,Math.min(1,c/v1)); }); }
+/* x (en coordenadas del svg) de la primera letra del rótulo de su lámina: Planta, Sección, Axonometría */
+function xRotulo(svg,inicio){ const cap=svg&&svg.closest(".lam")&&svg.closest(".lam").querySelector(".cap"); if(!cap) return null;
+  if(inicio){ const r=cap.getBoundingClientRect(), pl=parseFloat(getComputedStyle(cap).paddingLeft)||0; return r.left+pl-svg.getBoundingClientRect().left; }
+  const tn=[...cap.childNodes].find(n=>n.nodeType===3&&n.textContent.trim()); if(!tn) return null;
+  const off=tn.textContent.search(/\S/), r=document.createRange(); r.setStart(tn,off); r.setEnd(tn,off+1);
+  const b=r.getBoundingClientRect(); return b.width?b.left-svg.getBoundingClientRect().left:null; }
+function escalaComun(sp,svP,ew,ed,ext){ const svS=$("#svSec"); if(!svS) return null;
+  const rp=svP.getBoundingClientRect(), rs=svS.getBoundingClientRect(), W=rp.width, H=rp.height, Ws=rs.width, Hs=rs.height; if(!W||!H||!Ws||!Hs) return null;
+  let yb=rs.left>=rp.right-2?rs.top+Hs-50-rp.top:null; if(yb!=null&&(yb<140||yb>H-60)) yb=null; /* línea de suelo de la sección, en coordenadas de la planta */
+  const q=encuadreSec(sp), hd=holgura(sp.d,6)+ext.N, hw=holgura(sp.w,6), hwP=Math.max(sp.w+.5,sp.w*1.2), cer=sp.conf==="Cerrado"; /* la planta reserva menos sitio para crecer a lo ancho: así queda menos blanco entre planta y sección */
+  /* el borde izquierdo de cada dibujo (cara exterior del muro O, o lo que sobresalga de él) se alinea con la primera letra de su rótulo; crecen hacia la derecha */
+  const xP=xRotulo(svP,true)??40, xS=xRotulo(svS)??40, lP=Math.max(cer?MURO:0,ext.O), lS=Math.max(cer?MURO:0,q.exS.O);
+  /* la planta tiene su propia escala: un marco cuadrado fijo (el de 10 × 10 m) que la estancia llena con su mayor medida en planta;
+     la estancia se apoya en la esquina inferior izquierda del marco (lado O y lado S quietos).
+     La sección queda a escala fija: la que hace caber 10 m de ancho por 10 m de alto en su lámina */
+  const LIM=10, top=64, F=Math.max(60,Math.min(W-xP-70, H-top-134));
+  const sP=F/Math.max(sp.w+lP+ext.E,sp.d+ext.N+ext.S,.1)*.999, oyP=top+F-(sp.d+ext.S)*sP;
+  /* sección: marco fijo (el que ocupaba 10 × 10 m); la estancia lo llena siempre con su mayor medida, crezca o mengüe */
+  const m10=Math.min((Ws-xS-50)/(lS+LIM+q.exS.E+.1),(Hs-92)/(LIM+.3))*LIM, sS=m10/Math.max(sp.w+lS+q.exS.E+.1,sp.h+.3,.1);
+  ESC.comun={sel:S.sel+"|"+S.mode,s:sS,oxS:xS+lS*sS}; return {s:sP,yb:null,oxP:xP+lP*sP,oyP}; }
 function pegajosa(nombre,W,H,fit,origen,cabe){
   if(FIJA) return {s:FIJA.s,ox:FIJA.ox,oy:FIJA.oy};
   if(MINI){ if(!MINI.s){ MINI.fits[nombre]=Math.min(MINI.fits[nombre]??Infinity,fit); throw MINI_STOP; }
@@ -938,21 +1169,22 @@ function dibujarPlanta(svg){
   const I=css("--ink"), A=css("--accent"), F=css("--faint"), Mu=css("--mute"), P=css("--sheet");
   fijarEmp(sp); const ext={N:0,S:0,O:0,E:0}; sp.furn.filter(f=>f.on&&f.emp&&!esTabique(f)&&sp.conf==="Cerrado").forEach(f=>{const hz=f.emp==="N"||f.emp==="S"; ext[f.emp]=Math.max(ext[f.emp],(hz?f.d:f.w)+.1);}); // margen para la profundidad máxima: la escala no salta al arrastrar
   const ew=holgura(sp.w,6)+ext.O+ext.E, ed=holgura(sp.d,6)+ext.N+ext.S;
-  const fit=MINI?Math.min((W-56)/(ew+.2),(H-58)/(ed+.2)):Math.min((W-110)/(ew+.2),(H-150)/(ed+.2),260);
-  const E=pegajosa("plan",W,H,fit,s=>[Math.max(MINI?6:40,(W-ew*s)/2-20)+ext.O*s,Math.max(MINI?8:52,(H-ed*s)/2-22)+ext.N*s],(s,ox,oy)=>ox-ext.O*s>=10&&oy-ext.N*s>=30&&ox+(sp.w+.1+ext.E)*s+50<=W&&oy+(sp.d+.1+ext.S)*s+110<=H);
+  const cm=(!MINI&&!FIJA&&svg.id==="svPlan"&&(S.mode==="min"||S.mode==="max"))?escalaComun(sp,svg,ew,ed,ext):null;
+  const fit=MINI?Math.min((W-50)/(sp.w+ext.O+ext.E+.25),(H-62)/(sp.d+ext.N+.15)):Math.min((W-110)/(ew+.2),(H-150)/(ed+.2),260);
+  const E=cm?{s:cm.s,ox:cm.oxP,oy:cm.oyP}:pegajosa("plan",W,H,fit,s=>MINI?[2+Math.max(sp.conf==="Cerrado"?MURO:0,ext.O)*s,H-50-sp.d*s]:[Math.max(40,(W-ew*s)/2-20)+ext.O*s,Math.max(52,(H-ed*s)/2-22)+ext.N*s],(s,ox,oy)=>ox-ext.O*s>=10&&oy-ext.N*s>=30&&ox+(sp.w+.1+ext.E)*s+50<=W&&oy+(sp.d+.1+ext.S)*s+110<=H);
   const s=E.s, ox=E.ox, oy=E.oy;
   svg._s=s; svg._ox=ox; svg._oy=oy;
   const g=el("g",{},svg);
   // malla de 50 cm
   const gm=el("g",{opacity:.9},g);
-  for(let x=.5;x<sp.w-1e-6;x+=.5) el("line",{x1:ox+x*s,y1:oy,x2:ox+x*s,y2:oy+sp.d*s,stroke:F,"stroke-width":.6,"stroke-dasharray":"1 3"},gm);
-  for(let y=.5;y<sp.d-1e-6;y+=.5) el("line",{x1:ox,y1:oy+y*s,x2:ox+sp.w*s,y2:oy+y*s,stroke:F,"stroke-width":.6,"stroke-dasharray":"1 3"},gm);
-  el("rect",{x:ox,y:oy,width:sp.w*s,height:sp.d*s,fill:"none",stroke:I,"stroke-width":.5,"stroke-dasharray":sp.prop?"":"4 3"},g);
+  for(let x=.5;x<sp.w-1e-6;x+=.5) el("line",{x1:ox+x*s,y1:oy,x2:ox+x*s,y2:oy+sp.d*s,stroke:F,"stroke-width":LW.F,"stroke-dasharray":"1 3"},gm);
+  for(let y=.5;y<sp.d-1e-6;y+=.5) el("line",{x1:ox,y1:oy+y*s,x2:ox+sp.w*s,y2:oy+y*s,stroke:F,"stroke-width":LW.F,"stroke-dasharray":"1 3"},gm);
+  el("rect",{x:ox,y:oy,width:sp.w*s,height:sp.d*s,fill:"none",stroke:I,"stroke-width":LW.F,"stroke-dasharray":sp.prop?"":"4 3"},g);
   const gH=document.createElementNS(NS,"g"); // huecos por encima del mobiliario
   muro(g,ox,oy,s,sp,sp.w,sp.d,sp.conf,true,gH);
   // giro y cuerpo
   if(sp.giro.on){const gg=el("g",{"data-k":"giro",style:"cursor:move"},g);
-    el("circle",{cx:ox+sp.giro.x*s,cy:oy+sp.giro.y*s,r:.6*s,fill:css("--accent-soft"),stroke:A,"stroke-width":1,"stroke-dasharray":"5 3"},gg);
+    el("circle",{cx:ox+sp.giro.x*s,cy:oy+sp.giro.y*s,r:.6*s,fill:css("--accent-soft"),stroke:A,"stroke-width":LW.F,"stroke-dasharray":"5 3"},gg);
     txt(gg,ox+sp.giro.x*s,oy+sp.giro.y*s+3,"Ø 1,20",{"text-anchor":"middle",fill:A,"font-size":10});}
   // muebles
   sp.furn.slice().sort((a,b)=>(a.z||0)-(b.z||0)).forEach(f=>{ if(!f.on) return;
@@ -960,12 +1192,12 @@ function dibujarPlanta(svg){
     const out = !f.emp&&(f.x<-1e-6||f.y<-1e-6||f.x+f.w>sp.w+1e-6||f.y+f.d>sp.d+1e-6);
     const sel = drag&&(drag.grupo||[]).some(q=>q.f===f) || selIds().includes(f.id);
     const gf=el("g",{"data-k":"f","data-id":f.id,style:"cursor:move"},g);
-    const esInodoro=/inodoro/i.test(f.n), sc=out?A:(sel?A:I), sw=sel?1.4:.6, sdash=out?"4 3":"";
+    const esInodoro=/inodoro/i.test(f.n), sc=out?A:(sel?A:I), sw=sel?1.4:(piezaAlta(f)?LW.M:LW.F), sdash=out?"4 3":""; /* cortadas por el plano (altas): línea perimetral; bajas: fina */
     if(esTabique(f)){ const mk=POCHE_G&&POCHE_G.mask; if(POCHE_G) POCHE_G.mask=null; poche(g,x-.6,y-.6,w+1.2,h+1.2); if(POCHE_G) POCHE_G.mask=mk; /* el tabique no se recorta */ /* solapa 0,6 px para que no quede una junta clara al tocar el muro */ /* en el grupo de los muros: con o sin relleno, se une a ellos sin junta */
       el("rect",{x,y,width:w,height:h,fill:"transparent",stroke:sel?A:"none","stroke-width":2},gf); }
     else if(esInodoro){ el("rect",{x,y,width:w,height:h,fill:"transparent"},gf); bloqueInodoro(gf,f,sp,x,y,w,h,{fill:P,stroke:sc,"stroke-width":sw,"stroke-dasharray":sdash}); }
-    else if(alto){ el("rect",{x,y,width:w,height:h,fill:"transparent",stroke:sc,"stroke-width":sel?1.4:.6,"stroke-dasharray":"5 3"},gf);
-      el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:sc,"stroke-width":.4,"stroke-dasharray":"5 3"},gf); if(!/cama/i.test(f.n)) el("line",{x1:x+w,y1:y,x2:x,y2:y+h,stroke:sc,"stroke-width":.4,"stroke-dasharray":"5 3"},gf);
+    else if(alto){ el("rect",{x,y,width:w,height:h,fill:"transparent",stroke:sc,"stroke-width":sel?1.4:LW.M,"stroke-dasharray":"5 3"},gf);
+      el("line",{x1:x,y1:y,x2:x+w,y2:y+h,stroke:sc,"stroke-width":LW.F,"stroke-dasharray":"5 3"},gf); if(!/cama/i.test(f.n)) el("line",{x1:x+w,y1:y,x2:x,y2:y+h,stroke:sc,"stroke-width":LW.F,"stroke-dasharray":"5 3"},gf);
     } // colgada: contorno y aspa en discontinua; cama en altura: solo la diagonal
     else { el("rect",{x,y,width:w,height:h,fill:P,stroke:sc,"stroke-width":sw,"stroke-dasharray":sdash},gf); glifo(gf,f,x,y,w,h); }
     el("title",{},gf).textContent=f.n; // sin rótulo en el dibujo; el nombre aparece al pasar el ratón
@@ -974,9 +1206,9 @@ function dibujarPlanta(svg){
   g.appendChild(gH);
   const fsel=sp.furn.find(f=>f.id===selF&&f.on);
   if(fsel){ const hx=ox+(fsel.x+fsel.w)*s, hy=oy+fsel.y*s;
-    const boton=(k,cx,cy,glyph,title,hueco)=>{const gh=el("g",{"data-k":k,style:"cursor:pointer"},g); el("title",{},gh).textContent=title;
+    const boton=(k,cx,cy,glyph,title,hueco)=>{const gh=el("g",{"data-k":k,style:"cursor:pointer","data-ui":""},g); el("title",{},gh).textContent=title;
       el("circle",{cx,cy,r:12,fill:hueco?P:A,stroke:hueco?A:P,"stroke-width":1.5},gh);
-      txt(gh,cx,cy+4.5,glyph,{"text-anchor":"middle","font-family":"Schibsted Grotesk, sans-serif","font-size":14,"font-weight":700,fill:hueco?A:"#fff"});};
+      txt(gh,cx,cy+4.5,glyph,{"text-anchor":"middle","font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":14,"font-weight":700,fill:hueco?A:"#fff"});};
     // botones de la pieza seleccionada: hasta el techo (relleno si está ligada), girar y quitar
     boton("techo",hx-24,hy-16,"⊤",fsel.techo?"Llega hasta el techo: pulsa para soltarla":"Pulsa para que llegue hasta el techo",!fsel.techo);
     boton("rot",hx+4,hy-16,"↻","Girar 90°");
@@ -985,16 +1217,18 @@ function dibujarPlanta(svg){
   if(sp.body.on){const gb=el("g",{"data-k":"body",style:"cursor:move"},g); const bx=ox+sp.body.x*s, by=oy+sp.body.y*s;
     const k=FIGP_W*s, ang=sp.body.a||0, gt=el("g",{transform:`translate(${bx} ${by}) rotate(${ang}) scale(${k})`},gb);
     el("path",{d:FIGP_FILL,fill:P,stroke:"none"},gt);
-    el("path",{d:FIGP_LINE,fill:"none",stroke:selBody?A:I,"stroke-width":selBody?1.2:.6,"stroke-linecap":"round","stroke-linejoin":"round","vector-effect":"non-scaling-stroke"},gt);
+    el("path",{d:FIGP_LINE,fill:"none",stroke:selBody?A:I,"stroke-width":selBody?1.2:LW.M,"stroke-linecap":"round","stroke-linejoin":"round","vector-effect":"non-scaling-stroke"},gt);
     if(selBody){ // giro libre: asa a 0,55 m del centro, en la dirección a la que mira la figura
       const R=.55*s, r=ang*Math.PI/180, hx=bx-R*Math.sin(r), hy=by+R*Math.cos(r);
-      el("circle",{cx:bx,cy:by,r:R,fill:"none",stroke:A,"stroke-width":.6,"stroke-dasharray":"2 3"},g);
-      el("line",{x1:bx,y1:by,x2:hx,y2:hy,stroke:A,"stroke-width":.8},g);
-      const gh=el("g",{"data-k":"bodyrot",style:"cursor:grab"},g); el("title",{},gh).textContent="Arrastra para girar la figura";
+      el("circle",{cx:bx,cy:by,r:R,fill:"none",stroke:A,"stroke-width":.6,"stroke-dasharray":"2 3","data-ui":""},g);
+      el("line",{x1:bx,y1:by,x2:hx,y2:hy,stroke:A,"stroke-width":.8,"data-ui":""},g);
+      const gh=el("g",{"data-k":"bodyrot",style:"cursor:grab","data-ui":""},g); el("title",{},gh).textContent="Arrastra para girar la figura";
       el("circle",{cx:hx,cy:hy,r:11,fill:A,stroke:P,"stroke-width":1.5},gh);
-      txt(gh,hx,hy+4.5,"↻",{"text-anchor":"middle","font-family":"Schibsted Grotesk, sans-serif","font-size":13,"font-weight":700,fill:"#fff"});
-      txt(g,hx+16,hy+4,Math.round(((ang%360)+360)%360)+"°",{"font-size":10,fill:A}); }
+      txt(gh,hx,hy+4.5,"↻",{"text-anchor":"middle","font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":13,"font-weight":700,fill:"#fff"});
+      txt(g,hx+16,hy+4,Math.round(((ang%360)+360)%360)+"°",{"font-size":10,fill:A,"data-ui":""}); }
   }
+  /* lo seccionado (muros cortados) por encima de todo: piezas, huecos y figura; solo los mandos de la selección quedan encima */
+  { const L=CAPAS.get(g); if(L&&!POCHE_G){ g.appendChild(L.a); g.appendChild(L.b); [...g.querySelectorAll(":scope>[data-ui]")].forEach(e=>g.appendChild(e)); } }
   // cotas
   const t=.1*s;
   cota(g,ox,oy+sp.d*s+t+26,ox+sp.w*s,oy+sp.d*s+t+26,fmt(sp.w),I,false);
@@ -1063,14 +1297,15 @@ const FIGP_FILL="M0.5035 -0.1915 L0.4965 -0.2057 L0.4504 -0.2482 L0.4291 -0.2518
 const FIGP_W=0.62;
 function figura(g,x,y0,s,color){ // figura de 1,70 m dibujada a línea
   const C=color||css("--ink"), k=FIG_H*s;
-  el("path",{d:FIG_D,transform:`translate(${x-FIG_W/2*k} ${y0-k}) scale(${k})`,fill:css("--sheet"),stroke:C,"stroke-width":.7,"stroke-linejoin":"round","vector-effect":"non-scaling-stroke"},g);
+  el("path",{d:FIG_D,transform:`translate(${x-FIG_W/2*k} ${y0-k}) scale(${k})`,fill:css("--sheet"),stroke:C,"stroke-width":LW.M,"stroke-linejoin":"round","vector-effect":"non-scaling-stroke"},g);
 }
 function dibujarSeccion(svg,sp,W,H){
   svg.innerHTML=""; if(!W||!H) return; const I=css("--ink"), P=css("--sheet"), Mu=css("--mute"), F=css("--faint");
   fijarEmp(sp); const exS={O:0,E:0}; if(sp.conf!=="Abierto") nichos(sp).forEach(n=>{ if(n.k==="O"||n.k==="E") exS[n.k]=Math.max(exS[n.k],n.D+MURO); }); /* los nichos de O y E salen del muro: entran en el encuadre */
   const ew=holgura(sp.w,6)+exS.O+exS.E, eh=holgura(sp.h,4);
-  const fit=MINI?Math.min((W-46)/(ew+.2),(H-64)/(eh+.3)):Math.min((W-90)/(ew+.2),(H-92)/(eh+.3),200);
-  const E=pegajosa("sec",W,H,fit,s=>[(W-ew*s)/2-10+exS.O*s,0],(s,ox)=>ox-exS.O*s-12>=0&&ox+(sp.w+.1+exS.E)*s+44<=W&&(sp.h+.1)*s+80<=H);
+  const fit=MINI?Math.min((W-50)/(sp.w+exS.O+exS.E+.25),(H-64)/(sp.h+.3)):Math.min((W-90)/(ew+.2),(H-92)/(eh+.3),200);
+  const cmS=(!MINI&&!FIJA&&svg.id==="svSec"&&(S.mode==="min"||S.mode==="max")&&ESC.comun&&ESC.comun.sel===S.sel+"|"+S.mode)?ESC.comun.s:null;
+  const E=cmS?{s:cmS,ox:ESC.comun.oxS}:pegajosa("sec",W,H,fit,s=>[MINI?2+Math.max(sp.conf==="Cerrado"?MURO:0,exS.O)*s:(W-ew*s)/2-10+exS.O*s,0],(s,ox)=>ox-exS.O*s-12>=0&&ox+(sp.w+.1+exS.E)*s+44<=W&&(sp.h+.1)*s+80<=H);
   const s=E.s, ox=E.ox, y0=H-50;
   let g=el("g",{},svg); const t=.1*s;
   const exF={O:0,E:0}; if(sp.conf!=="Abierto") nichos(sp).forEach(n=>{ if((n.k==="O"||n.k==="E")&&n.zb-MURO<=1e-6) exF[n.k]=Math.max(exF[n.k],n.D); }); /* el forjado sigue bajo los nichos que arrancan del suelo */
@@ -1081,37 +1316,39 @@ function dibujarSeccion(svg,sp,W,H){
     NIs.filter(n=>n.k==="O"||n.k==="E").forEach(n=>{ const zb0=Math.max(0,n.zb-tw), zt1=n.zt+tw;
       if(n.k==="O"){ sol.push([-(n.D+tw),0,zb0,zt1]); vac.push([-n.D,1e-6,n.zb,n.zt]); } else { sol.push([sp.w,sp.w+n.D+tw,zb0,zt1]); vac.push([sp.w-1e-6,sp.w+n.D,n.zb,n.zt]); } });
     rectsSolidos(sol,vac).forEach(([x0,x1,z0,z1])=>poche(g,ox+x0*s,y0-z1*s,(x1-x0)*s,(z1-z0)*s)); }
-  else {[ox-t/2,ox+sp.w*s+t/2].forEach(x=>el("line",{x1:x,y1:y0-sp.h*s,x2:x,y2:y0,stroke:I,"stroke-dasharray":"5 4","stroke-width":.8},g));}
-  NIs.filter(n=>n.k==="N").forEach(n=>el("rect",{x:ox+n.u0*s,y:y0-n.zt*s,width:(n.u1-n.u0)*s,height:(n.zt-n.zb)*s,fill:"none",stroke:I,"stroke-width":.9},g));
+  else {[ox-t/2,ox+sp.w*s+t/2].forEach(x=>el("line",{x1:x,y1:y0-sp.h*s,x2:x,y2:y0,stroke:I,"stroke-dasharray":"5 4","stroke-width":LW.F},g));}
+  NIs.filter(n=>n.k==="N").forEach(n=>el("rect",{x:ox+n.u0*s,y:y0-n.zt*s,width:(n.u1-n.u0)*s,height:(n.zt-n.zb)*s,fill:"none",stroke:I,"stroke-width":LW.F},g));
   if(sp.conf!=="Abierto") (sp.doors||[]).filter(d=>d.wall==="N").forEach(d=>{ const [u0,u1]=tramoHueco(d,sp.w), {z,h}=alturaHueco(d,sp.h);
     const x=ox+u0*s, w=(u1-u0)*s, yT=y0-(z+h)*s, hh=h*s;
-    el("rect",{x,y:yT,width:w,height:hh,fill:"none",stroke:I,"stroke-width":.9,"stroke-dasharray":d.tipo==="Libre"?"4 3":""},g);
-    if(d.tipo==="Ventana"){ el("rect",{x:x+3,y:yT+3,width:Math.max(0,w-6),height:Math.max(0,hh-6),fill:"none",stroke:I,"stroke-width":.5},g); el("line",{x1:x+w/2,y1:yT+3,x2:x+w/2,y2:yT+hh-3,stroke:I,"stroke-width":.5},g); }
-    if(d.tipo==="Puerta"){ const hA=(d.lado||"a")==="a", xh=hA?x:x+w, xl=hA?x+w:x; el("path",{d:`M${xl} ${yT} L${xh} ${yT+hh/2} L${xl} ${yT+hh}`,fill:"none",stroke:I,"stroke-width":.5,"stroke-dasharray":d.abre==="fuera"?"3 2":""},g); }
+    el("rect",{x,y:yT,width:w,height:hh,fill:"none",stroke:I,"stroke-width":LW.F,"stroke-dasharray":d.tipo==="Libre"?"4 3":""},g);
+    if(d.tipo==="Ventana"){ el("rect",{x:x+3,y:yT+3,width:Math.max(0,w-6),height:Math.max(0,hh-6),fill:"none",stroke:I,"stroke-width":LW.F},g); el("line",{x1:x+w/2,y1:yT+3,x2:x+w/2,y2:yT+hh-3,stroke:I,"stroke-width":LW.F},g); }
+    if(d.tipo==="Puerta"){ const hA=(d.lado||"a")==="a", xh=hA?x:x+w, xl=hA?x+w:x; el("path",{d:`M${xl} ${yT} L${xh} ${yT+hh/2} L${xl} ${yT+hh}`,fill:"none",stroke:I,"stroke-width":LW.F,"stroke-dasharray":d.abre==="fuera"?"3 2":""},g); }
     if(d.tipo==="Corredera"){ const my=yT+hh*.5, [q0,q1]=tramoHueco(d,sp.w), sd=(d.lado||(sp.w-q1>=q0?"b":"a"))==="b"?1:-1, xa=sd>0?x+w*.2:x+w*.8, xb=sd>0?x+w*.8:x+w*.2;
-      el("line",{x1:xa,y1:my,x2:xb,y2:my,stroke:I,"stroke-width":.6},g); el("path",{d:`M${xb-sd*5} ${my-3} L${xb} ${my} L${xb-sd*5} ${my+3}`,fill:"none",stroke:I,"stroke-width":.6},g); }
+      el("line",{x1:xa,y1:my,x2:xb,y2:my,stroke:I,"stroke-width":LW.F},g); el("path",{d:`M${xb-sd*5} ${my-3} L${xb} ${my} L${xb-sd*5} ${my+3}`,fill:"none",stroke:I,"stroke-width":LW.F},g); }
   });
   const fs=sp.furn.filter(f=>f.on).slice().sort((a,b)=>a.y-b.y), gSec=g; g=el("g",{},gSec); /* el mobiliario, en su propio grupo */
-  fs.forEach((f,i)=>{const near=i/(Math.max(1,fs.length-1)), op=.55+.45*near, z0=f.z||0;
-    if(esCamaAlta(f)){ const R=(a,b,zA,zB)=>el("rect",{x:ox+a*s,y:y0-zB*s,width:(b-a)*s,height:Math.max(1,(zB-zA)*s),fill:P,stroke:I,"stroke-width":.5,opacity:op},g);
+  fs.forEach((f,i)=>{const near=i/(Math.max(1,fs.length-1)), op=.55+.45*near, z0=f.z||0, lw=piezaAlta(f)?LW.M:LW.F;
+    if(esCamaAlta(f)){ const R=(a,b,zA,zB)=>el("rect",{x:ox+a*s,y:y0-zB*s,width:(b-a)*s,height:Math.max(1,(zB-zA)*s),fill:P,stroke:I,"stroke-width":lw,opacity:op},g);
       R(f.x,f.x+f.w,z0,z0+f.h); return; }
-    if(esSofa(f)){ const zb=z0+f.h-SOFA_E, R=(a,b,zA,zB)=>el("rect",{x:ox+a*s,y:y0-zB*s,width:(b-a)*s,height:Math.max(1,(zB-zA)*s),fill:P,stroke:I,"stroke-width":.5,opacity:op},g);
+    if(esSofa(f)){ const zb=z0+f.h-SOFA_E, R=(a,b,zA,zB)=>el("rect",{x:ox+a*s,y:y0-zB*s,width:(b-a)*s,height:Math.max(1,(zB-zA)*s),fill:P,stroke:I,"stroke-width":lw,opacity:op},g);
       R(f.x,f.x+.03,z0,zb); R(f.x+f.w-.03,f.x+f.w,z0,zb); R(f.x,f.x+f.w,zb,z0+f.h);
       barrasSofa(f).forEach(([k,a,,c])=>R(a,c,z0+f.h,z0+f.h+SOFA_R)); return; }
-    if(esTabique(f)){ el("rect",{x:ox+f.x*s,y:y0-(z0+f.h)*s,width:f.w*s,height:Math.max(1,f.h*s),fill:P,stroke:I,"stroke-width":1.6,opacity:op},g); return; } /* el tabique, con el grueso de línea de los muros */
+    if(esTabique(f)){ if(f.d>=f.w){ poche(gSec,ox+f.x*s,y0-(z0+f.h)*s-.6,f.w*s,f.h*s+1.2); return; } /* tabique cortado por la sección: se dibuja como los muros y se funde con suelo, techo y muros, sin línea de corte (solapa 0,6 px) */
+      el("rect",{x:ox+f.x*s,y:y0-(z0+f.h)*s,width:f.w*s,height:Math.max(1,f.h*s),fill:P,stroke:I,"stroke-width":1.6,opacity:op},g); return; } /* paralelo a la sección: se ve de frente */ /* el tabique, con el grueso de línea de los muros */
     if(/inodoro/i.test(f.n)){ /* como en planta: cisterna (más alta) contra el muro y taza; de lado, perfil en L */
-      const vt=f.d>=f.w, lado=vt?(f.y<=sp.d-(f.y+f.d)?"N":"S"):(f.x<=sp.w-(f.x+f.w)?"O":"E"), L=vt?f.d:f.w, c=L*.233, zs=z0+f.h, zt=zs+.38, at={fill:P,stroke:I,"stroke-width":.5,opacity:op,"stroke-linejoin":"round"};
+      const vt=f.d>=f.w, lado=vt?(f.y<=sp.d-(f.y+f.d)?"N":"S"):(f.x<=sp.w-(f.x+f.w)?"O":"E"), L=vt?f.d:f.w, c=L*.233, zs=z0+f.h, zt=zs+.38, at={fill:P,stroke:I,"stroke-width":lw,opacity:op,"stroke-linejoin":"round"};
       const X0=ox+f.x*s, X1=ox+(f.x+f.w)*s, Z=z=>y0-z*s;
       if(lado==="O"||lado==="E"){ const xc=lado==="O"?ox+(f.x+c)*s:ox+(f.x+f.w-c)*s;
         el("path",Object.assign({d:lado==="O"?`M${X0} ${Z(z0)} V${Z(zt)} H${xc} V${Z(zs)} H${X1} V${Z(z0)} Z`:`M${X1} ${Z(z0)} V${Z(zt)} H${xc} V${Z(zs)} H${X0} V${Z(z0)} Z`},at),g); }
       else { el("rect",Object.assign({x:X0,y:Z(zt),width:X1-X0,height:Math.max(1,(zt-z0)*s)},at),g);
-        if(lado==="N") el("line",{x1:X0,y1:Z(zs),x2:X1,y2:Z(zs),stroke:I,"stroke-width":.5,opacity:op},g); } /* taza delante de la cisterna: se ve su borde */
+        if(lado==="N") el("line",{x1:X0,y1:Z(zs),x2:X1,y2:Z(zs),stroke:I,"stroke-width":lw,opacity:op},g); } /* taza delante de la cisterna: se ve su borde */
       return; }
-    el("rect",{x:ox+f.x*s,y:y0-(z0+f.h)*s,width:f.w*s,height:Math.max(1,f.h*s),fill:P,stroke:I,"stroke-width":.5,opacity:op},g);
+    el("rect",{x:ox+f.x*s,y:y0-(z0+f.h)*s,width:f.w*s,height:Math.max(1,f.h*s),fill:P,stroke:I,"stroke-width":lw,opacity:op},g);
     if(esEstanteria(f)){ const n=nBaldas(f), t=.02; for(let i=1;i<n-1;i++){ const zb=z0+i*(f.h-t)/(n-1); el("rect",{x:ox+f.x*s,y:y0-(zb+t)*s,width:f.w*s,height:Math.max(.8,t*s),fill:I,stroke:"none",opacity:op},g); } } });
   { const gM=g; g=gSec; const L=CAPAS.get(g); if(L) g.insertBefore(gM,L.a); } /* muebles por debajo de los muros: la línea del muro se ve entera */
   const bx = sp.body.on? sp.body.x : Math.min(sp.w-.25,Math.max(.25,sp.w*.72));
   if(sp.body.on) figura(g,ox+bx*s,y0,s,I); // solo con «Figura humana» activada
+  { const L=CAPAS.get(g); if(L){ g.appendChild(L.a); g.appendChild(L.b); } } /* lo seccionado (muros, suelo y techo cortados) por encima de piezas, huecos y figura */
   cota(g,ox+sp.w*s+t+18,y0-sp.h*s,ox+sp.w*s+t+18,y0,fmt(sp.h),I,true);
   cota(g,ox,y0+t*.8+22,ox+sp.w*s,y0+t*.8+22,fmt(sp.w),I,false);
 }
@@ -1162,7 +1399,7 @@ function escenaAxo(o,dx,dy,pref,E){
   const rect=(x0,y0,x1,y1,z,g,w)=>{ const q=[[x0,y0],[x1,y0],[x1,y1],[x0,y1]]; q.forEach((p,i)=>{ const r=q[(i+1)%4]; seg([p[0],p[1],z],[r[0],r[1],z],g,w); }); };
   /* prisma de planta poligonal convexa (piezas curvas): tapa tras lo que queda detrás y sus aristas van como trazos del mueble.
      op.vert(i,liso)→[za,zb] o null: arista vertical en el vértice i; op.sinTop / op.sinBase: lados (i→i+1) sin arista arriba / abajo */
-  const prisma=(pol,z0,z1,g,op)=>{ op=op||{}; const n=pol.length, w=.5, RC={"stroke-linecap":"round"}, cx=pol.reduce((a,p)=>a+p[0],0)/n, cy=pol.reduce((a,p)=>a+p[1],0)/n;
+  const prisma=(pol,z0,z1,g,op)=>{ op=op||{}; const n=pol.length, w=LW.F, RC={"stroke-linecap":"round"}, cx=pol.reduce((a,p)=>a+p[0],0)/n, cy=pol.reduce((a,p)=>a+p[1],0)/n;
     const nor=pol.map((p,i)=>{ const r=pol[(i+1)%n]; let nx=r[1]-p[1], ny=-(r[0]-p[0]); const l=Math.hypot(nx,ny)||1; nx/=l; ny/=l; if(nx*((p[0]+r[0])/2-cx)+ny*((p[1]+r[1])/2-cy)<0){ nx=-nx; ny=-ny; } return [nx,ny]; });
     E.prismas.push({poly:pol.map(([a,b])=>[a+dx,b+dy]),z0,z1,nor});
     pol.forEach((p,i)=>{ const r=pol[(i+1)%n]; if(!(op.sinTop||[]).includes(i)) seg([p[0],p[1],z1],[r[0],r[1],z1],g,w,RC); if(!(op.sinBase||[]).includes(i)) seg([p[0],p[1],z0],[r[0],r[1],z0],g,w,RC);
@@ -1185,10 +1422,10 @@ function escenaAxo(o,dx,dy,pref,E){
   (o.doors||[]).filter(d=>d.tipo==="Ventana"&&(d.wall==="N"||d.wall==="O")&&o.conf==="Cerrado").forEach(d=>{ const N=d.wall==="N", [u0,u1]=tramoHueco(d,N?W:D), {z,h}=alturaHueco(d,H), um=(u0+u1)/2;
     seg(N?[um,-MURO/2,z]:[-MURO/2,um,z],N?[um,-MURO/2,z+h]:[-MURO/2,um,z+h],obra+"·v",.5); }); /* montante de la ventana, en el plano medio del muro */
   const mue={t:Fa,x:P,y:P};
-  o.furn.filter(f=>f.on).forEach(f=>{ const g=pref+f.id, x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d,z0=f.z||0,h=z0+Math.max(.02,f.h), C=(a,b,c,d,e,ff)=>caja([a,b,e,c,d,ff],g,"mueble",mue);
+  o.furn.filter(f=>f.on).forEach(f=>{ const g=pref+f.id, x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d,z0=f.z||0,h=z0+Math.max(.02,f.h), C=(a,b,c,d,e,ff)=>{ const n0=E.cajas.length; caja([a,b,e,c,d,ff],g,"mueble",mue); if(piezaAlta(f)) E.cajas.slice(n0).forEach(q=>q.alto=true); };
     if(esTabique(f)){ const n0=E.cajas.length; caja([x,y,z0,X,Y,h],obra,"tabique",fMuro); if(E.cajas.length>n0) corte(); return; }
     if(/mesa/i.test(f.n)&&!/sobre/i.test(f.n)&&f.h>.06){ const e=.03,t=.03; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,h-e)); C(x,y,X,Y,h-e,h); return; }
-    if(esCamaAlta(f)){ C(x,y,X,Y,z0,h); seg([x,y,h],[X,Y,h],g,.35); return; }
+    if(esCamaAlta(f)){ C(x,y,X,Y,z0,h); seg([x,y,h],[X,Y,h],g,LW.F); return; }
     if(esSofa(f)){ const t=.03, zb=z0+f.h-SOFA_E; [[x,y],[X-t,y],[x,Y-t],[X-t,Y-t]].forEach(([a,b])=>C(a,b,a+t,b+t,z0,zb)); C(x,y,X,Y,zb,h); barrasSofa(f).forEach(([,a,b,c,d])=>C(a,b,c,d,h,h+SOFA_R)); return; }
     if(esEstanteria(f)){ partesEst(f,o,x,y,X,Y,z0,h).forEach(q=>C(...q)); return; }
     if(/silla/i.test(f.n)&&f.h>.06){ const e=.03,t=.03,RB=.40, lado=ladoRespaldo(f,o), r={N:[x,y,X,y+t],S:[x,Y-t,X,Y],O:[x,y,x+t,Y],E:[X-t,y,X,Y]}[lado];
@@ -1200,14 +1437,14 @@ function escenaAxo(o,dx,dy,pref,E){
       prisma(cis,z0,zt,g,{sinBase:[2],vert:i=>i>=2?[h,zt]:[z0,zt]}); /* la cisterna, más alta: su frente baja hasta la taza */
       prisma(taza,z0,h,g,{sinBase:[0],vert:(i,sil)=>i<2?null:(sil?[z0,h]:null)}); return; }
     C(x,y,X,Y,z0,h);
-    if(/fuegos|placa/i.test(f.n)){ const r=Math.min(f.w,f.d)*.15; [[.3,.3],[.7,.3],[.3,.7],[.7,.7]].forEach(([u,v])=>anillo(x+f.w*u,y+f.d*v,r,r,h,g,.35)); }
+    if(/fuegos|placa/i.test(f.n)){ const r=Math.min(f.w,f.d)*.15; [[.3,.3],[.7,.3],[.3,.7],[.7,.7]].forEach(([u,v])=>anillo(x+f.w*u,y+f.d*v,r,r,h,g,LW.F)); }
     if(/fregadero/i.test(f.n)){ const ejeY=!((f.rot||0)%2), F=.43, Cc=.06; const bw=ejeY?Math.max(.05,f.w-2*Cc):Math.min(F,f.w), bd=ejeY?Math.min(F,f.d):Math.max(.05,f.d-2*Cc);
-      const x0=x+(f.w-bw)/2, y0=y+(f.d-bd)/2; rect(x0,y0,x0+bw,y0+bd,h,g,.35); anillo(x+f.w/2,y+f.d/2,.025,.025,h,g,.35); }
-    if(/cama/i.test(f.n)) seg([x,y,h],[X,Y,h],g,.35);
-    if(/lavabo|lavamanos/i.test(f.n)){ anillo(x+f.w/2,y+f.d/2,f.w*.34,f.d*.3,h,g,.35); anillo(x+f.w/2,y+f.d/2,.02,.02,h,g,.35); }
+      const x0=x+(f.w-bw)/2, y0=y+(f.d-bd)/2; rect(x0,y0,x0+bw,y0+bd,h,g,LW.F); anillo(x+f.w/2,y+f.d/2,.025,.025,h,g,LW.F); }
+    if(/cama/i.test(f.n)) seg([x,y,h],[X,Y,h],g,LW.F);
+    if(/lavabo|lavamanos/i.test(f.n)){ anillo(x+f.w/2,y+f.d/2,f.w*.34,f.d*.3,h,g,LW.F); anillo(x+f.w/2,y+f.d/2,.02,.02,h,g,LW.F); }
     if(/ducha/i.test(f.n)){ const dist={N:f.y,O:f.x,S:o.d-Y,E:o.w-X}; const m=["N","O","S","E"].reduce((a,b)=>dist[b]<dist[a]-1e-6?b:a);
       const zH=Math.min(2.05,o.h-.1), L=.28, cx=(x+X)/2, cy=(y+Y)/2, [p0,p1]={N:[[cx,y],[cx,y+L]],S:[[cx,Y],[cx,Y-L]],O:[[x,cy],[x+L,cy]],E:[[X,cy],[X-L,cy]]}[m];
-      seg([p0[0],p0[1],zH],[p1[0],p1[1],zH],g,.9,{"stroke-linecap":"round"}); anillo(p1[0],p1[1],.08,.08,zH-.03,g,.5); }
+      seg([p0[0],p0[1],zH],[p1[0],p1[1],zH],g,.9,{"stroke-linecap":"round"}); anillo(p1[0],p1[1],.08,.08,zH-.03,g,LW.F); }
   });
   /* pieza abierta empotrada: el hueco de uso sobre ella, de puntos */
   NI.filter(n=>esAbierta(n.f)).forEach(n=>{ const f=n.f, x=f.x,y=f.y,X=f.x+f.w,Y=f.y+f.d, top=(f.z||0)+f.h, zt=n.zt; if(zt<=top+.01) return;
@@ -1276,14 +1513,14 @@ function pintarAxo(g,E,s,ox,oy){
   const color=(b,c)=>{ if(!LLENO) return b.fill[c]; if(!esObra(b)) return P0;
     if(c==="t") return b.k!=="suelo"&&ce(b.z1,b.cz)?I:P0; if(c==="x") return ce(b.x1,b.cx)?I:P0; return ce(b.y1,b.cy)?I:P0; };
   orden.forEach(i=>{ const b=B[i]; if(!(AXO_RELLENO||LLENO)||!b.fill||(b.k==="mueble"&&dentroObra(b))) return;
-    const pg=(pts,f)=>el("polygon",{points:pts.map(p=>P2(p).join(",")).join(" "),fill:f,stroke:f,"stroke-width":.3,"stroke-linejoin":"round"},gR);
+    const pg=(pts,f)=>el("polygon",{points:pts.map(p=>P2(p).join(",")).join(" "),fill:f,stroke:f,"stroke-width":f===I?1:.3,"stroke-linejoin":"round"},gR); /* lo cortado (negro) con un poco de solape: sin juntas claras entre caras vecinas */
     pg([[b.x0,b.y0,b.z1],[b.x1,b.y0,b.z1],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],color(b,"t"));
     pg([[b.x1,b.y0,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x1,b.y0,b.z1]],color(b,"x"));
     pg([[b.x0,b.y1,b.z0],[b.x1,b.y1,b.z0],[b.x1,b.y1,b.z1],[b.x0,b.y1,b.z1]],color(b,"y")); });
   /* aristas reales: en cada grupo (la obra entera, cada mueble) solo los pliegues del sólido, sin las juntas entre prismas */
   const porGrupo={}; B.forEach(b=>(porGrupo[b.g]=porGrupo[b.g]||[]).push(b));
   const ocupa=(L,p)=>L.some(b=>p[0]>b.x0&&p[0]<b.x1&&p[1]>b.y0&&p[1]<b.y1&&p[2]>b.z0&&p[2]<b.z1);
-  const peso={muro:.9,tabique:.9,suelo:.7,mueble:.5}, vistos=new Set(), trazos=[]; /* el contenido (mobiliario) más marcado que el contenedor */
+  const peso={muro:.9,tabique:.9,suelo:LW.M,mueble:LW.F,alto:LW.M}, vistos=new Set(), trazos=[]; /* el contenido (mobiliario) más marcado que el contenedor */
   B.forEach(b=>{ const L=porGrupo[b.g], X=[b.x0,b.x1],Y=[b.y0,b.y1],Z=[b.z0,b.z1];
     const aristas=[]; Y.forEach(y=>Z.forEach(z=>aristas.push([0,[b.x0,y,z],[b.x1,y,z]]))); X.forEach(x=>Z.forEach(z=>aristas.push([1,[x,b.y0,z],[x,b.y1,z]]))); X.forEach(x=>Y.forEach(y=>aristas.push([2,[x,y,b.z0],[x,y,b.z1]])));
     aristas.forEach(([ax,A0,A1])=>{ const lo=A0[ax], hi=A1[ax], cs=[lo,hi]; L.forEach(o=>{ const m=[o.x0,o.y0,o.z0][ax], M=[o.x1,o.y1,o.z1][ax]; [m,M].forEach(v=>{ if(v>lo+1e-6&&v<hi-1e-6) cs.push(v); }); }); cs.sort((p,q)=>p-q);
@@ -1292,9 +1529,14 @@ function pintarAxo(g,E,s,ox,oy){
         const q=(s1,s2)=>{ const p=m.slice(); p[o1]+=s1*d; p[o2]+=s2*d; return ocupa(L,p); }, a1=q(1,1),a2=q(1,-1),a3=q(-1,1),a4=q(-1,-1), c=a1+a2+a3+a4;
         if(!(c===1||c===3||(c===2&&a1===a4))) continue;
         const pa=A0.slice(), pb=A0.slice(); pa[ax]=cs[i]; pb[ax]=cs[i+1]; const key=b.g+"|"+[pa,pb].map(p=>p.map(v=>v.toFixed(4)).join(",")).join(";");
-        if(vistos.has(key)) continue; vistos.add(key); trazos.push({a:pa,b:pb,k:b.k,w:peso[b.k]||.7}); } }); });
+        if(vistos.has(key)) continue; vistos.add(key); trazos.push({a:pa,b:pb,k:b.k,w:(b.alto?peso.alto:peso[b.k])||.7}); } }); });
   E.segs.forEach(sg=>trazos.push({a:sg.a,b:sg.b,k:"deco",w:sg.w,extra:sg.extra}));
   const gO=el("g",{fill:"none"},gL), gV=el("g",{fill:"none"},gL), GRIS=mezcla(I,P0,.3);
+  if(MUROS==="lleno"&&gR.childNodes.length){ /* con relleno: lo oculto (gris) no se pinta sobre lo cortado (negro): máscara con los propios rellenos */
+    const sv=g.ownerSVGElement||g, id="mo"+Math.random().toString(36).slice(2,9); let defs=sv.querySelector(":scope>defs"); if(!defs) defs=el("defs",{},sv); defs.insertBefore?0:0;
+    const mk=el("mask",{id,maskUnits:"userSpaceOnUse",x:-1e4,y:-1e4,width:2e4,height:2e4},defs); el("rect",{x:-1e4,y:-1e4,width:2e4,height:2e4,fill:"#fff"},mk);
+    const cl=gR.cloneNode(true); cl.removeAttribute("transform"); cl.querySelectorAll("polygon").forEach(q=>{ if(q.getAttribute("fill")===I) q.setAttribute("stroke-width",2.5); }); mk.appendChild(cl); if(gR.getAttribute("transform")) cl.setAttribute("transform",gR.getAttribute("transform"));
+    gO.setAttribute("mask",`url(#${id})`); }
   const linea=(p,q,w,extra,dash,dest)=>{ const A=P2(p),Bq=P2(q); el("line",Object.assign({x1:A[0],y1:A[1],x2:Bq[0],y2:Bq[1],stroke:I,"stroke-width":w},dash?{"stroke-dasharray":dash}:{},extra||{}),dest||gV); };
   trazos.forEach(tz=>{ const tp=tapados(tz.a,tz.b); const cuts=[0,1]; tp.forEach(([s0,s1])=>cuts.push(s0,s1)); cuts.sort((p,q)=>p-q);
     const at=t=>[tz.a[0]+(tz.b[0]-tz.a[0])*t,tz.a[1]+(tz.b[1]-tz.a[1])*t,tz.a[2]+(tz.b[2]-tz.a[2])*t];
@@ -1305,7 +1547,7 @@ function pintarAxo(g,E,s,ox,oy){
       if(run&&run.e===e) run.t1=t1; else { cierra(); run={e,t0,t1}; } }
     cierra(); });
   /* lo virtual, de puntos: sin cálculo de visibilidad */
-  E.virt.forEach(v=>v.lim?linea(v.a,v.b,1.4,{"stroke-linecap":"round"},"0.1 3.6"):linea(v.a,v.b,.6,{stroke:css("--mute")},"1.5 2.5"));
+  E.virt.forEach(v=>v.lim?linea(v.a,v.b,.9,{"stroke-linecap":"round"},"0.1 2.6"):linea(v.a,v.b,LW.F,{stroke:css("--mute")},"1.5 2.5")); /* límites de lo abierto: puntos con el grueso de los muros */
 }
 /* encuadre: caja proyectada de la escena */
 function limitesAxo(E){ let b=[1e9,-1e9,1e9,-1e9]; const ad=(x,y,z)=>{ const [u,v]=axoUV(x,y,z); b=[Math.min(b[0],u),Math.max(b[1],u),Math.min(b[2],v),Math.max(b[3],v)]; };
@@ -1318,7 +1560,16 @@ function dibujarAxo(svg,sp,W,H){
   /* holgura del encuadre: la escala se mantiene mientras la estancia crece un poco */
   const hw=holgura(sp.w,6)/Math.max(sp.w,.1), hd=holgura(sp.d,6)/Math.max(sp.d,.1), hh=holgura(sp.h,4)/Math.max(sp.h,.1), k=Math.max(hw,hd,hh);
   const fit=MINI?Math.min((W-12)/bw,(H-14)/bh):Math.min((W-50)/(bw*k),(H-70)/(bh*k),160);
-  const Ev=pegajosa("axo",W,H,fit,s=>[(W-bw*s)/2-bx0*s,(H-bh*s)/2-by0*s+8],(s,ox,oy)=>ox+bx0*s>=8&&ox+bx1*s<=W-8&&oy+by0*s>=28&&oy+by1*s<=H-8);
+  const cabeA=(s,ox,oy)=>ox+bx0*s>=8&&ox+bx1*s<=W-8&&oy+by0*s>=28&&oy+by1*s<=H-8;
+  let Ev;
+  if(!MINI&&!FIJA&&svg.id==="svAxo"&&(S.mode==="min"||S.mode==="max")){
+    /* como planta y sección: marco fijo de la axonometría de un máximo de 10 × 10 × 10 m; la mayor medida de la estancia lo llena.
+       La esquina O-S del suelo queda en un punto fijo (bajo la A del rótulo), así que si cambia una medida que no es la mayor, lo de dentro no se mueve */
+    const [ua,va]=axoUV(0,sp.d,0), xA=xRotulo(svg)??20, cA=AXV.c, LIM=10;
+    const a10=Math.min((W-xA-10)/(2*LIM*cA+.4),(H-56)/(2*LIM+.4)), s=a10*LIM/Math.max(sp.w,sp.d,sp.h,.1); /* marco fijo: la estancia lo llena siempre con su mayor medida */
+    const yA=H-26-(LIM/2+.2)*a10; /* donde cae la esquina O-S del marco de 10 m, con su fondo apoyado abajo */
+    Ev={s,ox:xA-bx0*s,oy:yA-va*s};
+  } else Ev=pegajosa("axo",W,H,fit,s=>[(W-bw*s)/2-bx0*s,(H-bh*s)/2-by0*s+(MINI?0:8)],cabeA);
   pintarAxo(el("g",{},svg),E,Ev.s,Ev.ox,Ev.oy);
 }
 /* Ud. Hab.: todas las estancias en una sola escena; los muros de cada estancia cerrada que caen dentro de otra se recortan, como en planta */
@@ -1371,7 +1622,7 @@ function dibujarPlantaMax(svg){
   // salto de escala
   const salto=(M.salto||"").trim();
   if(!MINI&&M.w*s>120&&M.d*s>60){
-    txt(g,ox+M.w*s-10,oy+M.d*s-34,salto?"→ "+salto:"¿en qué se convierte?",{"text-anchor":"end","font-family":"Schibsted Grotesk, sans-serif","font-size":Math.min(26,Math.max(13,M.w*s/16)),"font-weight":800,fill:A,opacity:salto?1:.45});
+    txt(g,ox+M.w*s-10,oy+M.d*s-34,salto?"→ "+salto:"¿en qué se convierte?",{"text-anchor":"end","font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":Math.min(26,Math.max(13,M.w*s/16)),"font-weight":800,fill:A,opacity:salto?1:.45});
     txt(g,ox+M.w*s-10,oy+M.d*s-14,`caben ${nx*ny} mínimos · ${fmt(M.w*M.d,1)} m²`,{"text-anchor":"end","font-size":10,fill:A});
   }
   const t=10;
@@ -1415,7 +1666,7 @@ function dibujarRegla(svg){
   txt(g,a,y-30,fmt(sp.w*sp.d,1),{"text-anchor":"middle","font-size":10,fill:I});
   txt(g,b,y-30,fmt(M.w*M.d,1),{"text-anchor":"middle","font-size":10,fill:A});
   const f=(M.w*M.d)/(sp.w*sp.d);
-  txt(g,L,74,"×"+fmt(f,1),{"font-family":"Schibsted Grotesk, sans-serif","font-size":34,"font-weight":800,fill:A});
+  txt(g,L,74,"×"+fmt(f,1),{"font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":34,"font-weight":800,fill:A});
   txt(g,L+2,90,"del mínimo al máximo · en gris, los demás espacios",{"font-size":9,fill:Mu});
 }
 
@@ -1423,12 +1674,12 @@ function dibujarRegla(svg){
 function vistaDibujo(){
   const v=$("#vista"); const sp=cur(); const isMax=S.mode==="cmp", enMax=S.mode==="max";
   v.innerHTML=`<div class="hoja">
-    <div class="lam planta"><div class="cap"><i>${idx(sp.id)}${isMax?"":enMax?".2":".1"}</i>Planta<span>${isMax?"máximo sobre mínimo":"arrastra el mobiliario, la figura o el giro"}</span></div>
+    <div class="lam planta"><div class="cap"><i>A</i>Planta<span>${isMax?"máximo sobre mínimo":"arrastra el mobiliario, la figura o el giro"}</span></div>
       ${isMax?(sp.maxd.prop?"":'<div class="tag rojo">máximo provisional</div>'):(sp.prop?"":`<div class="tag">${enMax?"máximo provisional":"caja provisional"} · sin propuesta</div>`)}
       <svg id="svPlan" role="img" aria-label="Planta de ${esc(sp.name)}"></svg>
-      <div class="ayuda">${isMax?"Retícula roja: cuántas veces cabe el mínimo en el máximo. A trazos rojos, el mobiliario del máximo.":"Pulsa una pieza: ↻ la gira 90°, × la quita (también doble clic para girar). Mayús + clic añade o quita piezas de la selección, para moverlas, girarlas o quitarlas juntas; Ctrl+C / Ctrl+V las copia y pega (también en otra estancia). Pulsa la figura y arrastra su asa para girarla libremente (Mayús: de 15 en 15°)."}</div></div>
-    <div class="lam"><div class="cap"><i>${isMax?"B":"A"}</i>Sección<span>${isMax?"altura máxima y mínima":"corte transversal"}</span></div><svg id="svSec" role="img" aria-label="Sección"></svg></div>
-    <div class="lam"><div class="cap"><i>${isMax?"C":"B"}</i>${isMax?"Regla de escala":"Axonometría"}</div><svg id="svAxo" role="img" aria-label="${isMax?"Regla de escala":"Axonometría"}"></svg></div>
+      ${isMax?'<div class="ayuda">Retícula roja: cuántas veces cabe el mínimo en el máximo. A trazos rojos, el mobiliario del máximo.</div>':""}</div>
+    <div class="lam"><div class="cap"><i>B</i>Sección${isMax?"<span>altura máxima y mínima</span>":""}</div><svg id="svSec" role="img" aria-label="Sección"></svg></div>
+    <div class="lam"><div class="cap"><i>C</i>${isMax?"Regla de escala":"Axonometría"}</div><svg id="svAxo" role="img" aria-label="${isMax?"Regla de escala":"Axonometría"}"></svg></div>
   </div>`;
   requestAnimationFrame(()=>{ if(isMax){dibujarPlantaMax($("#svPlan"));dibujarSeccionMax($("#svSec"));dibujarRegla($("#svAxo"));} else {dibujarPlanta($("#svPlan"));dibujarSecAxo();} });
 }
@@ -1436,7 +1687,7 @@ function miniPar(sp,sc){
   const M=vMax(sp), w=Math.max(M.w,sp.w)*sc+2, h=Math.max(M.d,sp.d)*sc+2;
   return `<svg width="${Math.max(10,w)}" height="${Math.max(10,h)}" aria-hidden="true"><rect x="1" y="1" width="${M.w*sc}" height="${M.d*sc}" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1" ${M.prop?"":'stroke-dasharray="3 2"'}/><rect x="1" y="1" width="${sp.w*sc}" height="${sp.d*sc}" fill="var(--sheet)" stroke="var(--ink)" stroke-width="1.4" ${sp.prop?"":'stroke-dasharray="3 2"'}/></svg>`;
 }
-let MXV="min"; try{ MXV=localStorage.getItem("bai-visor-mxv")||"min"; }catch(e){}
+let MXV="min"; try{ MXV=localStorage.getItem("bai-visor-mxv")||"min"; }catch(e){} if(MXV==="cmp") MXV="min"; /* la matriz comparativa ya no se ofrece */
 const MXT={min:"Matriz de espacios mínimos",max:"Matriz de espacios máximos",cmp:"Matriz comparativa"};
 /* columnas: cada alumno importado; tu trabajo, si no hay alumnos o si ya has propuesto algo */
 function columnasMatriz(){
@@ -1461,11 +1712,13 @@ function dibujarCelda(td,id,T){
   conEstado(T,id,MXV,()=>{ const sp=cur(); try{ MXV==="cmp"?dibujarSeccionMax(ms):dibujarSeccion(ms,sp,ms.clientWidth,ms.clientHeight); }catch(e){ if(e!==MINI_STOP) throw e; } }); const sS=esc();
   conEstado(T,id,MXV,()=>{ const sp=cur(); MXV==="cmp"?dibujarAxoCmp(ma,sp,ma.clientWidth,ma.clientHeight):dibujarAxo(ma,sp,ma.clientWidth,ma.clientHeight); }); const sA=esc();
   if(sP||sS||sA) [mp,ms,ma].forEach(afinarMatriz);
+  const me=td.querySelector(".mesc"); if(me&&sP&&MINI&&MINI.s){ me.innerHTML=""; const m=MINI; MINI=null; try{ escalaGrafica(me,1,me.clientHeight-2,sP,me.clientWidth-14); } finally{ MINI=m; } }
 }
 function dibujarFila(tr,cols){ if(tr._ok) return; tr._ok=true; const id=tr.dataset.id;
   const tds=[...tr.querySelectorAll("td.cel[data-k]")].map(td=>({td,T:cols.find(c=>c.k===td.dataset.k).T}));
   MINI={fits:{},s:null}; tds.forEach(o=>dibujarCelda(o.td,id,o.T));
-  MINI.s=MINI.fits; tds.forEach(o=>dibujarCelda(o.td,id,o.T)); MINI=null;
+  MINI.s=MINI.fits; if(MINI.s.plan!=null&&MINI.s.sec!=null) MINI.s.plan=MINI.s.sec=Math.min(MINI.s.plan,MINI.s.sec); /* planta y sección, a la misma escala */
+  tds.forEach(o=>dibujarCelda(o.td,id,o.T)); MINI=null;
 }
 function vistaMatriz(){
   const v=$("#vista"), cols=columnasMatriz(), ids=S.order.slice();
@@ -1483,16 +1736,14 @@ function vistaMatriz(){
     const prov = MXV==="min"?!sp.prop : MXV==="max"?!X.prop : !(sp.prop&&X.prop);
     const arg = MXV==="min"?sp.porque : MXV==="max"?X.porque : [M.umbral?"Por encima: "+M.umbral.toLowerCase():"", M.salto?"Se convierte en "+M.salto:"", (M.fus||[]).length?"Se fusiona con "+M.fus.map(f=>(T.spaces[f]||{}).name).filter(Boolean).join(", "):""].filter(Boolean).join(". ");
     return `<td class="cel" data-k="${esc(c.k)}" title="Abrir ${esc(sp.name)} de ${esc(c.mio?(T.alumno||"tu trabajo"):T.alumno)}">
-      <div class="tot${MXV==="cmp"?" t3":""}">${tots}</div>
-      <svg class="mp" aria-hidden="true"></svg><div class="m2"><svg class="msec" aria-hidden="true"></svg><svg class="maxo" aria-hidden="true"></svg></div>
-      <div class="cif${prov?" prov":""}">${cif}${prov?" · provisional":""}</div><p class="arg"${arg?" data-notr":""}>${arg?esc(arg):'<span class="falta">Sin argumento.</span>'}</p></td>`; };
-  v.innerHTML=`<div class="tabla mtz"><div class="mtz-cab"><h2>${MXT[MXV]}</h2>
-      <div class="seg mtz-seg" role="group">${Object.entries({min:"Mínimos",max:"Máximos",cmp:"Comparativa"}).map(([k,t])=>`<button data-mxv="${k}" aria-pressed="${k===MXV}">${t}</button>`).join("")}</div></div>
-    <p class="sub">${MXV==="cmp"?"En rojo el máximo; en negro el mínimo.":""} Cada fila está dibujada a una misma escala para poder comparar a los alumnos. Pulsa una casilla para abrirla.</p>
+      <div class="mc"><svg class="mp" aria-hidden="true"></svg><svg class="msec" aria-hidden="true"></svg>
+      <div class="minfo"><div class="tot${MXV==="cmp"?" t3":""}">${tots}</div>${prov?'<div class="cif prov">provisional</div>':""}<p class="arg"${arg?" data-notr":""}>${arg?esc(arg):'<span class="falta">Sin argumento.</span>'}</p><svg class="mesc" aria-hidden="true"></svg></div>
+      <svg class="maxo" aria-hidden="true"></svg></div></td>`; };
+  v.innerHTML=`<div class="tabla mtz">
     ${cols.length?`<table class="mt"><thead><tr><th class="esq"></th>${cols.map(c=>`<th>${esc(c.mio?(c.T.alumno?c.T.alumno+" · tu trabajo":"Tu trabajo"):c.T.alumno)}${c.T.grupo?`<small>${esc(c.T.grupo)}</small>`:""}</th>`).join("")}</tr></thead>
     <tbody>${ids.map(id=>`<tr data-id="${id}"><th><i>${idx(id)}</i>${esc(S.spaces[id].name)}</th>${cols.map(c=>celda(c,id)).join("")}</tr>`).join("")}</tbody></table>`
     :`<p class="nota">Aún no hay trabajos. Importa las estancias de los alumnos con «Importar estancia».</p>`}</div>`;
-  v.querySelectorAll("[data-mxv]").forEach(b=>b.onclick=()=>{ MXV=b.dataset.mxv; try{localStorage.setItem("bai-visor-mxv",MXV);}catch(e){} vistaMatriz(); });
+  document.querySelectorAll("#panel [data-mxv]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mxv===MXV)));
   v.querySelectorAll("td.cel[data-k]").forEach(td=>td.onclick=()=>{ const k=td.dataset.k, id=td.closest("tr").dataset.id;
     if(k!==claveDe(S)) abrirCarpeta(k,id); else S.sel=id; setMode(MXV); });
   const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ dibujarFila(e.target,cols); io.unobserve(e.target); } }),{root:v.querySelector(".tabla"),rootMargin:"300px"});
@@ -1548,11 +1799,13 @@ function vistaConectar(){
     <div class="zoom"><button class="btn" data-z="1.25" title="Acercar">+</button><button class="btn" data-z="0.8" title="Alejar">−</button><button class="btn" data-z="0" title="Encuadrar la unidad">Encuadrar</button></div>
     <svg id="svCon" role="img" aria-label="Lienzo de la unidad habitacional"></svg>
     <div class="ayuda">Añade estancias desde la columna derecha. Arrástralas: al acercarse a otra se imantan muro con muro. Pulsa una: ↻ la gira 90° y × la quita (también R y Supr; flechas para moverla). Arrastra el fondo para desplazarte y usa la rueda para la escala.</div></div></div>`;
-  v.querySelectorAll("[data-z]").forEach(b=>b.onclick=()=>{ const svg=$("#svCon"), W=svg.clientWidth, H=svg.clientHeight, z=+b.dataset.z;
-    if(!z){ VC=encuadreCon(W,H); } else { const cx=W/2, cy=H/2, s2=Math.max(8,Math.min(200,VC.s*z)); VC={s:s2,ox:cx-(cx-VC.ox)*s2/VC.s,oy:cy-(cy-VC.oy)*s2/VC.s}; } dibujarConectar(); });
+  v.querySelectorAll("[data-z]").forEach(b=>b.onclick=()=>zoomCon(+b.dataset.z));
   requestAnimationFrame(dibujarConectar);
 }
+function zoomCon(z){ const svg=$("#svCon"); if(!svg) return; const W=svg.clientWidth, H=svg.clientHeight;
+  if(!z){ VC=encuadreCon(W,H); } else { const cx=W/2, cy=H/2, s2=Math.max(8,Math.min(200,VC.s*z)); VC={s:s2,ox:cx-(cx-VC.ox)*s2/VC.s,oy:cy-(cy-VC.oy)*s2/VC.s}; } dibujarConectar(); }
 function dibujarConectar(){
+  { const ay=document.querySelector(".hoja.con .ayuda"); if(ay) ay.hidden=unidad().p.length>0; } /* la ayuda del lienzo se va en cuanto entra la primera estancia */
   const svg=$("#svCon"); if(!svg) return; svg.innerHTML=""; const W=svg.clientWidth, H=svg.clientHeight; if(!W||!H) return;
   if(!VC) VC=encuadreCon(W,H); const {s,ox,oy}=VC, I=css("--ink"), F=css("--faint"), A=css("--accent"), P=css("--sheet"), Mu=css("--mute");
   // malla de 50 cm en todo el lienzo; cada metro, algo más marcada
@@ -1583,7 +1836,7 @@ function dibujarConectar(){
     if(p.k===selP){ el("rect",{x:ox+(c.x-MURO)*s-3,y:oy+(c.y-MURO)*s-3,width:(c.w+2*MURO)*s+6,height:(c.h+2*MURO)*s+6,fill:"none",stroke:A,"stroke-width":1.2,"stroke-dasharray":"5 3","pointer-events":"none"},gS);
       const hx=ox+(c.x+c.w+MURO)*s, hy=oy+(c.y-MURO)*s;
       const boton=(k,cx,cy,glyph,title)=>{const gh=el("g",{"data-h":k,style:"cursor:pointer"},gS); el("title",{},gh).textContent=title;
-        el("circle",{cx,cy,r:12,fill:A,stroke:P,"stroke-width":1.5},gh); txt(gh,cx,cy+4.5,glyph,{"text-anchor":"middle","font-family":"Schibsted Grotesk, sans-serif","font-size":14,"font-weight":700,fill:"#fff"});};
+        el("circle",{cx,cy,r:12,fill:A,stroke:P,"stroke-width":1.5},gh); txt(gh,cx,cy+4.5,glyph,{"text-anchor":"middle","font-family":"Inter Tight, Helvetica Neue, Arial, sans-serif","font-size":14,"font-weight":700,fill:"#fff"});};
       boton("rot",hx-14,hy-16,"↻","Girar 90°"); boton("del",hx+14,hy-16,"×","Quitar de la unidad"); }
   });
   g.appendChild(gw); g.appendChild(gS); /* los muros, por encima de los muebles que se pegan a ellos: su línea se ve entera */
@@ -1651,7 +1904,7 @@ function panelConectar(){
     return `<div class="pz${p.k===selP?" sel":""}${sp?"":" no"}" data-pk="${p.k}"><i>${String(i+1).padStart(2,"0")}</i><span>${esc(S.spaces[p.id]?S.spaces[p.id].name:p.id)}<small>${sp?`${fmt(sp.w)} × ${fmt(sp.d)} m`:"autor no disponible"}</small></span><span class="seg full"><button data-pv="${p.k}" data-v="min" aria-pressed="${p.v!=="max"}">mín.</button><button data-pv="${p.k}" data-v="max" aria-pressed="${p.v==="max"}">máx.</button></span>
       ${varios?`<span></span><select class="sm autor" data-pa="${p.k}" aria-label="Autor de esta estancia">${(autores.includes(k)?autores:[k,...autores]).map(f=>`<option value="${esc(f)}" ${f===k?"selected":""}>${esc(nombreAutor(f))}</option>`).join("")}</select>`:""}</div>`; };
   $("#panel").className="panel";
-  $("#panel").innerHTML=`<div class="sec ficha"><div class="titulo"><i>05</i><input value="Unidad habitacional" readonly aria-label="Vista"></div>
+  $("#panel").innerHTML=`<div class="sec ficha"><div class="titulo sinmay"><i>05</i><input value="Ud. Hab." readonly aria-label="Vista"><div class="zoom zp"><button class="btn" data-zp="1.25" title="Acercar">+</button><button class="btn" data-zp="0.8" title="Alejar">−</button><button class="btn" data-zp="0" title="Encuadrar la unidad">Encuadrar</button></div></div>
     <div class="cifras"><div><b>${fmt(t.A,2)}<small>m²</small></b><span>superficie</span></div><div><b>${fmt(t.V,1)}<small>m³</small></b><span>volumen</span></div><div><b>${U.p.length}</b><span>estancias</span></div></div></div>
   <div class="sec"><h3>Añadir estancia <i>a la unidad</i></h3>
     ${varios?`<div class="pz-src"><span></span><span class="etq">de</span><select class="sm" id="sSrc" aria-label="Alumno del que tomar la estancia">${F.map(f=>`<option value="${esc(f)}" ${f===CON_SRC?"selected":""}>${esc(nombreAutor(f))}</option>`).join("")}</select></div>`:""}
@@ -1661,6 +1914,7 @@ function panelConectar(){
     ${varios&&U.p.length?`<div class="pz-src"><span></span><button class="btn" id="bBarajar" title="Toma cada estancia de un alumno distinto, al azar entre quienes la han entregado">Barajar autores</button></div>`:""}
     <p class="nota">Pulsa una fila para señalarla en el lienzo. Para girar o quitar una estancia, púlsala en el dibujo.${varios?" Cambia el autor de una estancia sin moverla de su sitio con su desplegable.":""} Superficie y volumen suman las estancias con sus nichos; lo que se solapa entre estancias cuenta una sola vez y no cuentan los muros.</p></div>`;
   const p=$("#panel");
+  p.querySelectorAll("[data-zp]").forEach(b=>b.onclick=()=>zoomCon(+b.dataset.zp));
   p.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const svg=$("#svCon"), W=svg?svg.clientWidth:800, H=svg?svg.clientHeight:600;
     const k="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,5), q={k,id:b.dataset.add,v:b.dataset.v,x:0,y:0,r:0}; if(CON_SRC!==claveDe(S)) q.src=CON_SRC; const c=cajaP(q); if(!c) return;
     const cs=U.p.map(cajaP).filter(Boolean); /* entra a la derecha de lo que ya hay, sin pisarlo */
@@ -1707,9 +1961,9 @@ function area(lbl,key,val,obj,ph,input){return `<label class="area" for="t_${obj
 function cabecera(sp,isMax){
   const a=sp.w*sp.d, M=isMax?vMax(sp):null, b=isMax?M.w*M.d:0;
   const otro = sp.id.startsWith("otro");
-  return `<div class="sec ficha"><div class="titulo"><i>${idx(sp.id)}</i><input id="tNombre" value="${esc(sp.name)}" ${otro?"":"readonly"} aria-label="Nombre del espacio"></div>
+  return `<div class="sec ficha">${otro?`<div class="titulo"><i>${idx(sp.id)}</i><input id="tNombre" value="${esc(sp.name)}" aria-label="Nombre del espacio"></div>`:""}
     ${isMax?`<div class="cifras"><div><b>${fmt(a,1)}<small>m²</small></b><span>mínimo (ej. 1)</span></div><div class="r"><b>${fmt(b,1)}<small>m²</small></b><span>máximo</span></div><div class="r"><b>×${fmt(b/a,1)}</b><span>factor</span></div></div>${M.prop?"":`<div class="prov">Máximo provisional: aún es la caja de partida. Propón el tuyo en 02 Máximos.</div>`}`
-    :`<div class="cifras">${cifrasMin(sp)}<div><b>${sp.furn.filter(f=>f.on).length}</b><span>piezas</span></div></div>${sp.prop?"":S.mode==="max"?`<div class="prov">Máximo provisional: la caja de partida de 2 × 2 × 2 m. Mueve las medidas y añade huecos y mobiliario para proponer el tuyo.</div>`:`<div class="prov">Caja de partida de 2 × 2 × 2 m, sin piezas ni huecos. No es un mínimo: mueve las medidas y añade huecos y mobiliario para proponer el tuyo.</div>`}`}
+    :`<div class="cifras dos">${cifrasMin(sp)}</div>${sp.prop?"":S.mode==="max"?`<div class="prov">Máximo provisional: la caja de partida de 2 × 2 × 2 m. Mueve las medidas y añade huecos y mobiliario para proponer el tuyo.</div>`:`<div class="prov">Caja de partida de 2 × 2 × 2 m, sin piezas ni huecos. No es un mínimo: mueve las medidas y añade huecos y mobiliario para proponer el tuyo.</div>`}`}
     </div>`;
 }
 function cifrasMin(sp){ const a=sp.w*sp.d, x=extraNichos(sp);
@@ -1765,12 +2019,12 @@ function panelMin(){
   $("#panel").innerHTML = cabecera(sp,false) + `
   <div class="sec"><h3>${enMax?"Tu máximo":"Tu mínimo"} <i>medidas interiores, m</i></h3>
     ${enMax?campo("Ancho","w",sp.w,.4,30,.05,"sp")+campo("Fondo","d",sp.d,.4,30,.05,"sp")+campo("Altura","h",sp.h,1.8,10,.05,"sp")
-      :campo("Ancho","w",sp.w,.4,6,.05,"sp")+campo("Fondo","d",sp.d,.4,6,.05,"sp")+campo("Altura","h",sp.h,1.8,4,.05,"sp")}
+      :campo("Ancho","w",sp.w,.4,10,.05,"sp")+campo("Fondo","d",sp.d,.4,10,.05,"sp")+campo("Altura","h",sp.h,1.8,10,.05,"sp")}
   </div>
   <div class="sec config"><h3>Configuración</h3>
     <h4>Cerramiento</h4><div class="rejilla"><span></span><div class="seg full lados" role="group">${CONFS.map(o=>`<button data-seg="conf" data-o="sp" data-v="${esc(o)}" aria-pressed="${o===sp.conf}">${esc(o)}</button>`).join("")}</div></div>
     <h4>Huecos</h4>
-    <div class="puertas">${sp.doors.length?`<div class="hueco cab"><span></span><span>hueco</span><span>muro</span><span>ancho × alto</span></div>`:""}${sp.doors.map((d,i)=>filaHueco(d,i,sp)).join("")||'<p class="nota" style="margin:0">Sin huecos.</p>'}</div>
+    <div class="puertas">${sp.doors.length?`<div class="hueco cab"><span></span><span>hueco</span><span>muro</span><span>ancho × alto</span></div>`:""}${sp.doors.map((d,i)=>filaHueco(d,i,sp)).join("")||''}</div>
     <div class="hueco-add"><button class="btn" id="bAddDoor">Añadir hueco</button></div>
     <p class="nota">En la planta: arrastra un hueco para moverlo por su muro; púlsalo y usa × (o Supr) para quitarlo.</p>
     <p class="nota">Alturas en m desde el suelo. En la sección se ven los huecos del muro N; en la axonometría, los de N y O.</p>
@@ -1778,9 +2032,10 @@ function panelMin(){
     <div class="fila"><label class="chk"><input type="checkbox" id="cBody" ${sp.body.on?"checked":""}>Figura humana</label><label class="chk"><input type="checkbox" id="cGiro" ${sp.giro.on?"checked":""}>Giro Ø 1,20 (silla de ruedas)</label></div>
   </div>
   <div class="sec mob"><h3>Mobiliario <i>${sp.furn.length} piezas · m</i></h3>
-    <div class="muebles">${sp.furn.length?`<div class="mueble cab"><span></span><span>ancho</span><span>fondo</span><span>alto</span><span>elev.</span></div>`:""}${muebles||'<p class="nota">Sin piezas. Añade las que use tu espacio.</p>'}</div>
+    <div class="muebles">${sp.furn.length?`<div class="mueble cab"><span></span><span>ancho</span><span>fondo</span><span>alto</span><span>elev.</span></div>`:""}${muebles||''}</div>
     <div class="mueble-add"><span></span><select class="sm" id="sCat" aria-label="Pieza a añadir">${htmlCatalogo(sp.id)}</select><button class="btn" id="bAddF">Añadir pieza</button></div>
     <p class="nota">Puedes usar cualquier pieza del programa: primero salen las de esta estancia y después las de las demás. Medidas de mobiliario corriente, solo como punto de partida. Cámbialas por las de tu propuesta. Para girar, quitar o llevar una pieza hasta el techo, púlsala en la planta.</p>
+    <p class="nota">Pulsa una pieza: ↻ la gira 90°, × la quita (también doble clic para girar). Mayús + clic añade o quita piezas de la selección, para moverlas, girarlas o quitarlas juntas; Ctrl+C / Ctrl+V las copia y pega (también en otra estancia). Pulsa la figura y arrastra su asa para girarla libremente (Mayús: de 15 en 15°).</p>
   </div>
   <div class="sec"><h3>Argumento</h3>
     ${enMax?area("Por qué no puede ser mayor","porque",sp.porque,"sp","Por encima de esta medida el espacio sobra, es lujo o queda sin definir porque…"):area("Por qué no puede ser menor","porque",sp.porque,"sp","Por debajo de esta medida…")}
@@ -1819,7 +2074,7 @@ function panelResumen(){
   const rec=aj.reduce((t,c)=>t+(c.T.recibidas||[]).length,0);
   const c1=S.order.filter(id=>S.spaces[id].prop).length, c2=S.order.filter(id=>S.spaces[id].maxd.prop).length;
   $("#panel").className="panel";
-  $("#panel").innerHTML=`<div class="sec"><div class="titulo"><i>04</i><input value="Matriz" readonly aria-label="Vista"></div>
+  $("#panel").innerHTML=`<div class="sec mxcab"><div class="mxtit"><h3>Matriz de espacios</h3><div class="seg mtz-seg" role="group">${Object.entries({min:"Mínimos",max:"Máximos"}).map(([k,t])=>`<button data-mxv="${k}" aria-pressed="${k===MXV}">${t}</button>`).join("")}</div></div>
     <div class="cifras">${aj.length?`<div><b>${aj.length}</b><span>alumnos</span></div><div><b>${rec}<small>/${aj.length*n}</small></b><span>estancias recibidas</span></div>`
       :`<div><b>${c1}<small>/${n}</small></b><span>mínimos propuestos</span></div><div class="r"><b>${c2}<small>/${n}</small></b><span>máximos propuestos</span></div>`}</div></div>
   <div class="sec"><h3>Copia completa</h3><div class="fila" style="margin-top:0"><button class="btn" id="bTodo" title="Guarda en un solo archivo tu trabajo y las carpetas de todos los alumnos importados, con sus unidades habitacionales">Exportar todo</button></div>
@@ -1829,17 +2084,19 @@ function panelResumen(){
   <div class="sec"><h3>Entrega</h3><p class="nota" style="margin-top:0">Cada estancia se entrega por separado: ábrela, pulsa «Exportar estancia» y envía al profesor el archivo .json que se descarga (lleva tu nombre, el mínimo, el máximo y la comparación).</p>
     <p class="nota">Profesorado: «Importar estancia» admite varios archivos a la vez (o suéltalos sobre el visor); cada alumno queda en su carpeta, en la columna de la izquierda. Con ‹ › junto al nombre pasas de un alumno a otro sin cambiar de estancia ni de pestaña.</p>
     <p class="nota">Tus datos se guardan solo en este navegador. Exporta a menudo para no perderlos. Para seguir en otro ordenador, escribe allí tu nombre en «Alumno» e importa tus archivos.</p></div>`;
-  enlazarPanel(); const bt=$("#bTodo"); if(bt) bt.onclick=exportarTodo; const bc=$("#bCero"); if(bc) bc.onclick=()=>preguntar("¿Borrar tu trabajo y volver a las cajas de partida de 2 × 2 × 2 m? Las carpetas de alumnos no se tocan.",empezarDeCero,"Borrar");
+  enlazarPanel(); document.querySelectorAll("#panel [data-mxv]").forEach(b=>b.onclick=()=>{ MXV=b.dataset.mxv; try{localStorage.setItem("bai-visor-mxv",MXV);}catch(e){} vistaMatriz(); alinearMatriz(); });
+  const bt=$("#bTodo"); if(bt) bt.onclick=exportarTodo; const bc=$("#bCero"); if(bc) bc.onclick=()=>preguntar("¿Borrar tu trabajo y volver a las cajas de partida de 2 × 2 × 2 m? Las carpetas de alumnos no se tocan.",empezarDeCero,"Borrar");
 }
 function enlazarPanel(){
   const p=$("#panel"); const sp=cur();
   const objOf=o=>o==="max"?S.spaces[S.sel].max:sp;
   p.querySelectorAll("input[type=range][data-k],input[type=number][data-k]").forEach(inp=>{
     inp.oninput=()=>{ const o=inp.dataset.o, k=inp.dataset.k; let v=parseFloat(String(inp.value).replace(",",".")); if(!isFinite(v)) return;
-      v=Math.max(+inp.min,Math.min(+inp.max,v)); const O=objOf(o); O[k]=r2(v); O.prop=true;
-      const twin=p.querySelector(`#${inp.type==="range"?"n":"r"}_${k}`); if(twin) twin.value = inp.type==="range"? v.toFixed(2) : v;
+      v=Math.max(+inp.min,Math.min(+inp.max,v)); const O=objOf(o); const v0=O[k]; O[k]=r2(v); O.prop=true;
+      if(o==="sp"&&(k==="w"||k==="d")&&isFinite(v0)&&v0>0) mantenerSitio(sp,k,v0,O[k]);
+      const twin=p.querySelector(`#${inp.type==="range"?"n":"r"}_${k}`); if(twin){ twin.value = inp.type==="range"? v.toFixed(2) : v; if(twin.parentNode&&twin.parentNode._upd) twin.parentNode._upd(); } /* el tirador sigue también al número escrito */
       if(o==="sp"&&k==="h"){ ajustarTecho(sp); pintarAltos(); }
-      if(o==="sp"&&(k==="w"||k==="d")){ if(sp.body.x>sp.w) sp.body.x=sp.w/2; if(sp.body.y>sp.d) sp.body.y=sp.d/2; if(sp.giro.x>sp.w) sp.giro.x=sp.w/2; if(sp.giro.y>sp.d) sp.giro.y=sp.d/2; }
+      if(o==="sp"&&(k==="w"||k==="d")){ if(sp.body.x>sp.w) sp.body.x=sp.w/2; if(sp.body.y>sp.d||sp.body.y<0) sp.body.y=sp.d/2; if(sp.giro.x>sp.w) sp.giro.x=sp.w/2; if(sp.giro.y>sp.d||sp.giro.y<0) sp.giro.y=sp.d/2; }
       guardar(); refrescarDibujo(); refrescarCifras(); };
     inp.onchange=()=>{render();};
   });
@@ -1913,7 +2170,7 @@ function fx(id){return cur().furn.find(f=>f.id===id);}
 function ponerTiradores(root){ root.querySelectorAll('.campo input[type=range]:not([data-tir])').forEach(inp=>{ inp.dataset.tir="1";
   const w=document.createElement("span"); w.className="desl"; inp.parentNode.insertBefore(w,inp); w.appendChild(inp); const t=document.createElement("i"); t.className="tir"; w.appendChild(t);
   const upd=()=>{ const W=w.clientWidth, mn=+inp.min, mx=+inp.max, f=Math.max(0,Math.min(1,(+inp.value-mn)/(mx-mn||1))); t.style.left=Math.round(f*(W-4))+"px"; };
-  inp.addEventListener("input",upd); upd(); requestAnimationFrame(upd); try{ new ResizeObserver(upd).observe(w); }catch(e){}
+  w._upd=upd; inp.addEventListener("input",upd); upd(); requestAnimationFrame(upd); try{ new ResizeObserver(upd).observe(w); }catch(e){}
   /* con el dedo: se toca o se arrastra en cualquier punto de la línea, no solo en el tirador */
   w.addEventListener("pointerdown",e=>{ if(e.pointerType==="mouse") return; e.preventDefault(); const mn=+inp.min, mx=+inp.max, st=parseFloat(inp.step)||.01;
     const fijar=ev=>{ const r=w.getBoundingClientRect(), f=Math.max(0,Math.min(1,(ev.clientX-r.left)/(r.width||1))); const v=Math.round((mn+f*(mx-mn))/st)*st;
@@ -1938,7 +2195,7 @@ function rotar(f,callado){ if(!f) return; const cx=f.x+f.w/2, cy=f.y+f.d/2; [f.w
   if(/silla/i.test(f.n)){ const o=["N","E","S","O"]; f.resp=o[(o.indexOf(ladoRespaldo(f,cur()))+1)%4]; } f.x=snap(cx-f.w/2); f.y=snap(cy-f.d/2); if(callado) return; guardar(); render(); }
 function refrescarDibujo(){ if(S.mode==="min"||S.mode==="max"){dibujarPlanta($("#svPlan"));dibujarSecAxo(); const t=document.querySelector(".lam.planta .tag"); if(t&&cur().prop) t.remove();} else if(S.mode==="cmp"){dibujarPlantaMax($("#svPlan"));dibujarSeccionMax($("#svSec"));dibujarRegla($("#svAxo")); const t=document.querySelector(".lam.planta .tag"); if(t&&cur().maxd.prop) t.remove();} }
 function refrescarCifras(){ const sp=cur(); const c=document.querySelector(".cifras"); if(!c) return; const bs=c.querySelectorAll("b");
-  if(S.mode==="min"||S.mode==="max"){ const t=document.createElement("div"); t.innerHTML=cifrasMin(sp); const ds=c.querySelectorAll(":scope>div"); const nd=t.querySelectorAll(":scope>div"); if(ds[0]&&nd[0]) ds[0].innerHTML=nd[0].innerHTML; if(ds[1]&&nd[1]) ds[1].innerHTML=nd[1].innerHTML; bs[2].textContent=sp.furn.filter(f=>f.on).length;}
+  if(S.mode==="min"||S.mode==="max"){ const t=document.createElement("div"); t.innerHTML=cifrasMin(sp); const ds=c.querySelectorAll(":scope>div"); const nd=t.querySelectorAll(":scope>div"); if(ds[0]&&nd[0]) ds[0].innerHTML=nd[0].innerHTML; if(ds[1]&&nd[1]) ds[1].innerHTML=nd[1].innerHTML; if(bs[2]) bs[2].textContent=sp.furn.filter(f=>f.on).length;}
   else {const a=sp.w*sp.d,b=sp.maxd.w*sp.maxd.d; bs[1].innerHTML=`${fmt(b,1)}<small>m²</small>`; bs[2].textContent="×"+fmt(b/a,1);}
   const pv=document.querySelector(".prov"); if(pv&&((S.mode!=="cmp"&&sp.prop)||(S.mode==="cmp"&&sp.maxd.prop))) pv.remove();
 }
@@ -1946,7 +2203,7 @@ function refrescarCifras(){ const sp=cur(); const c=document.querySelector(".cif
 /* ---------- índice y modos ---------- */
 function pintarIndice(){
   const isMax=S.mode==="max"||S.mode==="cmp";
-  $("#indice").innerHTML=`<h4>Programa · ${isMax?"ej. 2":"ej. 1"}</h4>`+S.order.map(id=>{const o=S.spaces[id]; const e=isMax?o.max.estado:o.estado;
+  $("#indice").innerHTML=`<h4>Programa habitacional</h4>`+S.order.map(id=>{const o=S.spaces[id]; const e=isMax?o.max.estado:o.estado;
     return `<button data-id="${id}" ${S.mio===false&&!(S.recibidas||[]).includes(id)?'class="falta" title="Sin recibir"':""} aria-current="${id===S.sel&&esDibujo()}"><i>${idx(id)}</i><span>${esc(o.name)}</span></button>`;}).join("")
     +htmlCarpetas();
   $("#indice").querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>{S.sel=b.dataset.id; selF=null; if(!esDibujo()) S.mode="min"; guardar(); render();});
@@ -1959,6 +2216,7 @@ function pintarIndice(){
 function setMode(m){ if(!abierta(m)){ toast("Esta pestaña se abrirá más adelante."); return; } S.mode=m; selF=null; guardar(); try{history.replaceState(null,"","#"+{min:"minimos",max:"maximos",cmp:"comparar",mx:"matriz",con:"conectar"}[m]);}catch(e){} render();}
 function render(){
   if(!abierta(S.mode)) S.mode="min";
+  document.body.dataset.modo=S.mode;
   document.querySelectorAll("#tabs button").forEach(b=>{ b.setAttribute("aria-pressed",String(b.dataset.m===S.mode)); const c=!abierta(b.dataset.m); b.classList.toggle("cerrada",c); b.setAttribute("aria-disabled",String(c)); });
   $("#iAlumno").value=S.alumno; $("#iGrupo").value=S.grupo; pintarPasar();
   asegurarMax(); pintarIndice();
@@ -2219,6 +2477,22 @@ ajustarNumeros(); if(document.fonts&&document.fonts.ready) document.fonts.ready.
   try{ downloads=await window.claude.use("downloads"); }catch(e){ downloads=null; }
   if(esDibujo()) render();
 })();
+
+/* cifras grandes que no caben en su columna (p. ej. 100,00 m² y 1000,0 m³): se reduce el cuerpo hasta que caben */
+function encajarCifras(){ document.querySelectorAll(".cifras b").forEach(b=>{ b.style.fontSize=""; const col=b.parentElement; if(!col) return;
+  let fs=parseFloat(getComputedStyle(b).fontSize), n=0; while(b.scrollWidth>col.clientWidth+.5&&fs>12&&n++<40){ fs-=1; b.style.fontSize=fs+"px"; } }); }
+{ const r0=render, c0=refrescarCifras, k0=refrescarCifrasCon;
+  render=function(){ const v=r0.apply(this,arguments); encajarCifras(); return v; };
+  refrescarCifras=function(){ const v=c0.apply(this,arguments); encajarCifras(); return v; };
+  refrescarCifrasCon=function(){ const v=k0.apply(this,arguments); encajarCifras(); return v; }; }
+
+/* 04 Matriz: el borde superior de la tabla, a la altura de la parte alta de las minúsculas de «mínimos propuestos» */
+function alinearMatriz(){ if(S.mode!=="mx") return; const lab=document.querySelector(".mxcab .cifras span"), mt=document.querySelector(".mtz"), tb=mt&&mt.querySelector("table");
+  if(!lab||!mt||!tb) return; const k=document.createElement("i"); k.style.cssText="display:inline-block;width:0;height:0;vertical-align:baseline"; lab.appendChild(k);
+  const base=k.getBoundingClientRect().bottom; k.remove(); const fs=parseFloat(getComputedStyle(lab).fontSize)||11, xTop=base-.53*fs;
+  const pt=parseFloat(mt.style.paddingTop||getComputedStyle(mt).paddingTop)||0, dif=xTop-tb.getBoundingClientRect().top; mt.style.paddingTop=Math.max(0,pt+dif)+"px"; }
+{ const r1=render; render=function(){ const v=r1.apply(this,arguments); alinearMatriz(); requestAnimationFrame(alinearMatriz); return v; };
+  addEventListener("resize",()=>requestAnimationFrame(alinearMatriz)); }
 </script>
 </body>
 </html>
