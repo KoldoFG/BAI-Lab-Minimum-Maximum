@@ -789,7 +789,11 @@ const TIPOS_HUECO = ["Libre","Puerta","Corredera","Ventana"];
 const ES_TECHO = /módulo alto|columna|armario|estanter|módulo de pared|mueble de pared|frigor|tabique/i;
 /* tabique: se dibuja como un muro (cortado) y, si toca los muros, se funde con ellos sin línea de junta; no se empotra */
 const esTabique=f=>/tabique/i.test(f.n);
-const esVacio=f=>/espacio vac/i.test(f.n); /* espacio vacío: como el módulo alto, pero sin mueble; empotrado, abre un nicho en el muro */
+const esVacio=f=>/espacio vac/i.test(f.n);
+/* ¿la pieza cabe en el aire de la estancia? el espacio vacío empotrado es aire: lo que se pone dentro de él no sale de la estancia */
+function enAire(sp,f){ let pz=[{x0:f.x,y0:f.y,x1:f.x+f.w,y1:f.y+f.d}];
+  const rs=[{x0:0,y0:0,x1:sp.w,y1:sp.d}].concat(sp.furn.filter(v=>v!==f&&v.on&&esVacio(v)&&v.emp&&sp.conf==="Cerrado"&&!sinMuro(sp,v.emp)).map(v=>({x0:v.x,y0:v.y,x1:v.x+v.w,y1:v.y+v.d})));
+  rs.forEach(r=>{ pz=pz.flatMap(q=>restarRect(q,r)); }); return pz.every(q=>q.x1-q.x0<1e-4||q.y1-q.y0<1e-4); } /* espacio vacío: como el módulo alto, pero sin mueble; empotrado, abre un nicho en el muro */
 // lado del respaldo de una silla: el opuesto a la mesa más cercana (sin mesa, hacia el muro N); al girarla queda fijado y gira 90° en sentido horario
 function ladoRespaldo(f,sp){
   if(f.resp) return f.resp; // fijado al girar la silla
@@ -1222,7 +1226,7 @@ function dibujarPlanta(svg){
   // muebles
   sp.furn.slice().sort((a,b)=>(a.z||0)-(b.z||0)).forEach(f=>{ if(!f.on) return;
     const x=ox+f.x*s, y=oy+f.y*s, w=f.w*s, h=f.d*s, alto=(f.z||0)>=1; // piezas colgadas: por encima del plano de corte, en discontinua
-    const out = !f.emp&&(f.x<-1e-6||f.y<-1e-6||f.x+f.w>sp.w+1e-6||f.y+f.d>sp.d+1e-6);
+    const out = !f.emp&&!enAire(sp,f); /* en rojo solo lo que sale de la estancia y de sus espacios vacíos empotrados */
     const sel = drag&&(drag.grupo||[]).some(q=>q.f===f) || selIds().includes(f.id);
     const gf=el("g",{"data-k":"f","data-id":f.id,style:"cursor:move"},g);
     const esInodoro=/inodoro/i.test(f.n), sc=out?A:(sel?A:I), sw=sel?1.4:(piezaAlta(f)?LW.M:LW.F), sdash=out?"4 3":""; /* cortadas por el plano (altas): línea perimetral; bajas: fina */
