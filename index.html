@@ -620,6 +620,11 @@ body[data-modo=con] .hoja.con .ayuda{top:14px;bottom:auto;max-width:620px}
 @media (min-width:901px){ body[data-modo=con] .panel{grid-row:1/4} }
 .titulo .zoom.zp{position:static;display:flex;gap:4px;margin-left:auto;align-self:center}
 .titulo .zoom.zp .btn{padding:3px 8px;font-size:var(--xs);min-width:24px}
+
+/* carpetas de alumnos: nombres y nota alineados con los títulos («Programa habitacional», «Carpetas»); la fila activa en negro a todo el ancho */
+.indice .carps button{padding-left:42.5px}
+.indice .carps .nota{margin:8px 16px 0 42.5px}
+.indice .carps h4{margin-top:4px}
 </style>
 </head>
 <body>
@@ -1681,7 +1686,7 @@ function vistaDibujo(){
     <div class="lam"><div class="cap"><i>B</i>Sección${isMax?"<span>altura máxima y mínima</span>":""}</div><svg id="svSec" role="img" aria-label="Sección"></svg></div>
     <div class="lam"><div class="cap"><i>C</i>${isMax?"Regla de escala":"Axonometría"}</div><svg id="svAxo" role="img" aria-label="${isMax?"Regla de escala":"Axonometría"}"></svg></div>
   </div>`;
-  requestAnimationFrame(()=>{ if(isMax){dibujarPlantaMax($("#svPlan"));dibujarSeccionMax($("#svSec"));dibujarRegla($("#svAxo"));} else {dibujarPlanta($("#svPlan"));dibujarSecAxo();} });
+  requestAnimationFrame(()=>{ if(!$("#svPlan")) return; /* se cambió de pestaña antes de dibujar */ if(isMax){dibujarPlantaMax($("#svPlan"));dibujarSeccionMax($("#svSec"));dibujarRegla($("#svAxo"));} else {dibujarPlanta($("#svPlan"));dibujarSecAxo();} });
 }
 function miniPar(sp,sc){
   const M=vMax(sp), w=Math.max(M.w,sp.w)*sc+2, h=Math.max(M.d,sp.d)*sc+2;
@@ -1707,7 +1712,7 @@ function afinarMatriz(svg){ if(!svg) return;
   svg.querySelectorAll("[stroke-width]").forEach(e=>{ if(e.hasAttribute("data-poche")){ e.setAttribute("stroke-width",2*MX_CORTE); return; }
     const w=parseFloat(e.getAttribute("stroke-width")); if(w>0) e.setAttribute("stroke-width",+Math.max(Math.min(w,.25),w*MX_FINO).toFixed(3)); }); }
 function dibujarCelda(td,id,T){
-  const mp=td.querySelector(".mp"), ms=td.querySelector(".msec"), ma=td.querySelector(".maxo"), esc=()=>{ const v=MINI&&MINI.ult; if(MINI) MINI.ult=null; return v; };
+  const mp=td.querySelector(".mp"), ms=td.querySelector(".msec"), ma=td.querySelector(".maxo"), esc=()=>{ const v=MINI&&MINI.ult; if(!mp||!ms||!ma||!td.isConnected) return; /* la casilla ya no está en pantalla */ if(MINI) MINI.ult=null; return v; };
   conEstado(T,id,MXV,()=>{ try{ MXV==="cmp"?dibujarPlantaMax(mp):dibujarPlanta(mp); }catch(e){ if(e!==MINI_STOP) throw e; } }); const sP=esc();
   conEstado(T,id,MXV,()=>{ const sp=cur(); try{ MXV==="cmp"?dibujarSeccionMax(ms):dibujarSeccion(ms,sp,ms.clientWidth,ms.clientHeight); }catch(e){ if(e!==MINI_STOP) throw e; } }); const sS=esc();
   conEstado(T,id,MXV,()=>{ const sp=cur(); MXV==="cmp"?dibujarAxoCmp(ma,sp,ma.clientWidth,ma.clientHeight):dibujarAxo(ma,sp,ma.clientWidth,ma.clientHeight); }); const sA=esc();
@@ -2338,8 +2343,10 @@ function preguntar(t,fn,si){ $("#modalTxt").textContent=t; $("#mSi").textContent
 /* copia completa: todas las carpetas (tu trabajo y los alumnos importados) en un archivo */
 function empezarDeCero(){ const act=claveDe(S), yo=act==="__mio"?S:CARP.__mio, n=porDefecto();
   if(yo){ n.alumno=yo.alumno||""; n.grupo=yo.grupo||""; }
-  if(act==="__mio"){ n.mode=S.mode; n.sel=S.sel; S=n; } else CARP.__mio=n;
-  selF=null; selBody=false; selHueco=null; selP=null; VC=null; subirUid(); hist=[]; rehist=[]; base=snapStr(); guardarCarpetas(); guardar(); render(); pintarUndo(); toast("Tu trabajo vuelve al punto de partida."); }
+  selF=null; selBody=false; selHueco=null; selP=null; VC=null;
+  if(act==="__mio"){ n.mode=S.mode; n.sel=S.sel; S=n; subirUid(); hist=[]; rehist=[]; base=snapStr(); guardarCarpetas(); guardar(); render(); pintarUndo(); }
+  else { CARP.__mio=n; abrirCarpeta("__mio"); } /* si se estaba viendo la carpeta de un alumno, se abre tu trabajo para que se vea el punto de partida */
+  toast("Tu trabajo vuelve al punto de partida."); }
 async function exportarTodo(){ commit(); const carpetas=Object.assign({},CARP,{[claveDe(S)]:S}); const n=Object.keys(carpetas).filter(k=>k!=="__mio").length;
   const d={tipo:"bai-copia",v:S.v,fecha:new Date().toISOString(),de:(carpetas.__mio&&carpetas.__mio.alumno)||"",carpetas};
   const fn=`BAI_copia_${new Date().toISOString().slice(0,10)}.json`;
