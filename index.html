@@ -818,7 +818,7 @@ function partesEst(f,sp,x,y,X,Y,z0,h){ const t=.02, n=nBaldas(f), F=frenteEst(f,
   if(hz) ps.push([x,y,x+t,Y,z0,h],[X-t,y,X,Y,z0,h]); else ps.push([x,y,X,y+t,z0,h],[x,Y-t,X,Y,z0,h]);
   for(let i=0;i<n;i++){ const zb=z0+i*(h-z0-t)/(n-1); ps.push(hz?[x+t,y,X-t,Y,zb,zb+t]:[x,y+t,X,Y-t,zb,zb+t]); }
   return ps.sort((a,b)=>(a[0]+a[2]+a[1]+a[3])-(b[0]+b[2]+b[1]+b[3])||a[4]-b[4]); }
-const esAbierta=f=>/sofá|sofa/i.test(f.n)||(!f.techo&&!/módulo|armario|estanter|frigor|mesilla/i.test(f.n));
+const esAbierta=f=>!esVacio(f)&&(/sofá|sofa/i.test(f.n)||(!f.techo&&!/módulo|armario|estanter|frigor|mesilla/i.test(f.n))); /* el espacio vacío no es pieza abierta: su nicho es justo su caja */
 function muroTocado(f,sp){ const d={N:Math.abs(f.y),S:Math.abs(sp.d-(f.y+f.d)),O:Math.abs(f.x),E:Math.abs(sp.w-(f.x+f.w))}; const k=Object.keys(d).reduce((a,b)=>d[b]<d[a]?b:a); return d[k]<=.03?k:null; }
 // empotrada: la pieza se mueve a lo largo del muro y, en perpendicular, entre tocar la cara interior (0) y quedar entera dentro del muro
 function fijarEmp(sp){ sp.furn.forEach(f=>{ if(!f.emp) return; const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -1262,9 +1262,9 @@ function dibujarPlanta(svg){
   /* lo seccionado (muros cortados) por encima de todo: piezas, huecos y figura; solo los mandos de la selección quedan encima */
   { const L=CAPAS.get(g); if(L&&!POCHE_G){ g.appendChild(L.a); g.appendChild(L.b); [...g.querySelectorAll(":scope>[data-ui]")].forEach(e=>g.appendChild(e)); } }
   // cotas
-  const t=.1*s;
-  cota(g,ox,oy+sp.d*s+t+26,ox+sp.w*s,oy+sp.d*s+t+26,fmt(sp.w),I,false);
-  cota(g,ox+sp.w*s+t+22,oy,ox+sp.w*s+t+22,oy+sp.d*s,fmt(sp.d),I,true);
+  const t=.1*s, exC={S:0,E:0}; nichos(sp).forEach(n=>{ if(n.k in exC) exC[n.k]=Math.max(exC[n.k],n.D); }); /* las cotas, por fuera de los nichos de S y E */
+  cota(g,ox,oy+(sp.d+exC.S)*s+t+26,ox+sp.w*s,oy+(sp.d+exC.S)*s+t+26,fmt(sp.w),I,false);
+  cota(g,ox+(sp.w+exC.E)*s+t+22,oy,ox+(sp.w+exC.E)*s+t+22,oy+sp.d*s,fmt(sp.d),I,true);
   escalaGrafica(g,16,H-46,s,W*.6);
   svg.onpointerdown=pdown;
   if(!svg._tq){ svg._tq=1; svg.addEventListener("touchstart",e=>{ if(e.target.closest&&e.target.closest("[data-k]")) e.preventDefault(); },{passive:false}); } /* con el dedo: sobre una pieza, arrastra; sobre el fondo, desliza la página */
@@ -1383,7 +1383,7 @@ function dibujarSeccion(svg,sp,W,H){
   const bx = sp.body.on? sp.body.x : Math.min(sp.w-.25,Math.max(.25,sp.w*.72));
   if(sp.body.on) figura(g,ox+bx*s,y0,s,I); // solo con «Figura humana» activada
   { const L=CAPAS.get(g); if(L){ g.appendChild(L.a); g.appendChild(L.b); } } /* lo seccionado (muros, suelo y techo cortados) por encima de piezas, huecos y figura */
-  cota(g,ox+sp.w*s+t+18,y0-sp.h*s,ox+sp.w*s+t+18,y0,fmt(sp.h),I,true);
+  { const xc=ox+sp.w*s+Math.max(t,exS.E*s)+18; cota(g,xc,y0-sp.h*s,xc,y0,fmt(sp.h),I,true); } /* por fuera de los nichos de E */
   cota(g,ox,y0+t*.8+22,ox+sp.w*s,y0+t*.8+22,fmt(sp.w),I,false);
 }
 function mezcla(c1,c2,t){ // mezcla dos colores hex (#rrggbb): t de c1 sobre c2
@@ -1442,6 +1442,13 @@ function escenaAxo(o,dx,dy,pref,E){
   fijarEmp(o); const NI=nichos(o);
   const corte=()=>{ const b=E.cajas[E.cajas.length-1]; if(b){ b.cx=dx+W; b.cy=dy+D; b.cz=H; } }; /* planos de corte: los muros E y S quitados (x=W, y=D) y el techo (z=H) */
   { const cx=o.conf==="Cerrado"&&!sinMuro(o,"O")?MURO:0, cy=o.conf==="Cerrado"&&!sinMuro(o,"N")?MURO:0; caja([-cx,-cy,-MURO,W,D,0],obra,"suelo",{t:css("--accent-soft"),x:P,y:P}); corte(); } /* forjado del espesor del muro; en las estancias cerradas pasa bajo los muros N y O */
+  /* el forjado sigue bajo los nichos que arrancan del suelo (N y O con el cerco del nicho; E y S, cortados como su muro) */
+  NI.filter(n=>n.zb<=1e-6).forEach(n=>{ const t=MURO, u0=n.u0, u1=n.u1, Dn=n.D; let b=null, cX=W, cY=D;
+    if(n.k==="N") b=[u0-t,-(Dn+t),-MURO,Math.min(W,u1+t),-t,0];
+    if(n.k==="O") b=[-(Dn+t),u0-t,-MURO,-t,Math.min(D,u1+t),0];
+    if(n.k==="S"){ b=[u0,D,-MURO,u1,D+Dn,0]; cY=D+Dn; }
+    if(n.k==="E"){ b=[W,u0,-MURO,W+Dn,u1,0]; cX=W+Dn; }
+    const n0=E.cajas.length; caja(b,obra,"suelo",{t:css("--accent-soft"),x:P,y:P}); if(E.cajas.length>n0){ const q=E.cajas[E.cajas.length-1]; q.cx=dx+cX; q.cy=dy+cY; q.cz=H; } });
   E.salas.push({x0:dx,y0:dy,x1:dx+W,y1:dy+D,h:H,cerr:o.conf==="Cerrado",pref});
   if(o.conf==="Cerrado"){
     ["N","O"].filter(k=>!sinMuro(o,k)).forEach(k=>murosAxo(o,k).forEach(b=>{ const n0=E.cajas.length; caja(b,obra,"muro",fMuro); if(E.cajas.length>n0){ corte(); E.muros.push(E.cajas[E.cajas.length-1]); } }));
