@@ -1180,8 +1180,10 @@ function escalaComun(sp,svP,ew,ed,ext){ const svS=$("#svSec"); if(!svS) return n
   /* la planta tiene su propia escala: un marco cuadrado fijo (el de 10 × 10 m) que la estancia llena con su mayor medida en planta;
      la estancia se apoya en la esquina inferior izquierda del marco (lado O y lado S quietos).
      La sección queda a escala fija: la que hace caber 10 m de ancho por 10 m de alto en su lámina */
-  const LIM=10, top=64, F=Math.max(60,Math.min(W-xP-70, H-top-134));
-  const sP=F/Math.max(sp.w+lP+ext.E,sp.d+ext.N+ext.S,.1)*.999, oyP=top+F-(sp.d+ext.S)*sP;
+  /* el marco cuenta el dibujo entero, muros y nichos incluidos: arriba no pasa del rótulo (top) y abajo deja sitio a la cota sin tocar la escala gráfica (H−104) */
+  const eN=Math.max(cer&&!sinMuro(sp,"N")?MURO:0,ext.N), eS=Math.max(cer&&!sinMuro(sp,"S")?MURO:0,ext.S), eE=Math.max(cer&&!sinMuro(sp,"E")?MURO:0,ext.E);
+  const LIM=10, top=64, F=Math.max(60,Math.min(W-xP-70, H-104-top));
+  const sP=F/Math.max(sp.w+lP+eE,sp.d+eN+eS,.1)*.999, oyP=top+F-(sp.d+eS)*sP;
   /* sección: marco fijo (el que ocupaba 10 × 10 m); la estancia lo llena siempre con su mayor medida, crezca o mengüe */
   const m10=Math.min((Ws-xS-50)/(lS+LIM+q.exS.E+.1),(Hs-92)/(LIM+.3))*LIM, sS=m10/Math.max(sp.w+lS+q.exS.E+.1,sp.h+.3,.1);
   ESC.comun={sel:S.sel+"|"+S.mode,s:sS,oxS:xS+lS*sS}; return {s:sP,yb:null,oxP:xP+lP*sP,oyP}; }
