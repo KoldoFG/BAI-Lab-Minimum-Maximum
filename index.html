@@ -1901,6 +1901,7 @@ function girar1(o){ const d=o.d, w=o.w;
   (o.doors||[]).forEach(h=>{ if(h.wall==="E"||h.wall==="O"){ h.pos=1-h.pos; if(h.lado) h.lado=h.lado==="a"?"b":"a"; } h.wall=SIG[h.wall]; });
   if(o.body){ const bx=d-o.body.y; o.body.y=o.body.x; o.body.x=bx; o.body.a=(o.body.a||0)+90; }
   if(o.giro){ const gx=d-o.giro.y; o.giro.y=o.giro.x; o.giro.x=gx; }
+  if(Array.isArray(o.sin)) o.sin=o.sin.map(k=>SIG[k]); /* los muros quitados giran con la estancia */
   o.w=d; o.d=w; return o; }
 function girarDiseno(sp,r){ let o=JSON.parse(JSON.stringify(sp)); for(let i=0;i<((r||0)%4);i++) o=girar1(o); return o; }
 function girarP(p){ const c=cajaP(p); if(!c) return; const cx=p.x+c.w/2, cy=p.y+c.h/2; p.r=((p.r||0)+1)%4; const c2=cajaP(p); p.x=snap(cx-c2.w/2); p.y=snap(cy-c2.h/2); }
